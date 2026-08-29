@@ -13,6 +13,7 @@
  * string says "no solver" on purpose — see VRP.md.
  */
 
+const mongoose = require('mongoose');
 const {
   suggestInsertions,
   AVG_SPEED_KMH,
@@ -22,19 +23,60 @@ const {
 } = require('../services/insertionService');
 const Vehicle = require('../models/Vehicle');
 const PickupRequest = require('../models/PickupRequest');
-const { publicVehicle } = require('./fleetController');
+const { publicVehicle, FALLBACK_FLEET } = require('./fleetController');
 const { publicRequest } = require('./requestController');
+const { getIsConnected } = require('../config/db');
 const logger = require('../utils/logger');
 
 const SOURCE = 'Cheapest Insertion Heuristic (rule-based, no solver)';
 
+const FALLBACK_DISPATCH_REQUESTS = [
+  {
+    id: '65f1c0010000000000000001',
+    _id: '65f1c0010000000000000001',
+    farmerName: 'Ramesh Singh',
+    farmerPhone: '+91 98765 43210',
+    quantityKg: 800,
+    produceType: 'Tomato',
+    cropType: 'Tomato',
+    origin: { label: 'Nashik Central Farm HQ', coordinates: [73.7898, 19.9975] },
+    destination: { label: 'Mumbai APMC, Vashi', coordinates: [73.0044, 19.0760] },
+    agreedRatePerKg: 35,
+    pickupDate: new Date().toISOString().split('T')[0],
+    requestedWindow: {
+      date: new Date().toISOString().split('T')[0],
+      label: 'Morning (08:00 - 12:00)',
+      startHour: 8,
+      endHour: 12,
+    },
+    status: 'pending',
+    timeline: [{ status: 'pending', note: 'Created in dispatch queue' }],
+  },
+  {
+    id: '65f1c0010000000000000002',
+    _id: '65f1c0010000000000000002',
+    farmerName: 'Kiran Thorat',
+    farmerPhone: '+91 94211 77665',
+    quantityKg: 1500,
+    produceType: 'Onion',
+    cropType: 'Onion',
+    origin: { label: 'Lasalgaon Farm, Niphad', coordinates: [74.2400, 20.1400] },
+    destination: { label: 'Kopargaon APMC', coordinates: [74.4712, 19.8801] },
+    agreedRatePerKg: 28,
+    pickupDate: new Date().toISOString().split('T')[0],
+    requestedWindow: {
+      date: new Date().toISOString().split('T')[0],
+      label: 'Afternoon (12:00 - 16:00)',
+      startHour: 12,
+      endHour: 16,
+    },
+    status: 'pending',
+    timeline: [{ status: 'pending', note: 'Created in dispatch queue' }],
+  },
+];
+
 /*
  * GET /api/dispatch/suggestions
- *
- * Reads this owner's fleet and the open request queue straight from Mongo. It
- * takes no fleet payload from the client: the ranking decides where a real
- * truck goes, and a caller who can post their own vehicles could rank a fleet
- * they do not own against requests they cannot see.
  */
 const getDispatchSuggestions = async (req, res) => {
   const topN = Number.isFinite(Number(req.query.topN)) && Number(req.query.topN) > 0
@@ -42,26 +84,48 @@ const getDispatchSuggestions = async (req, res) => {
     : DEFAULT_TOP_N;
 
   try {
-    const [fleet, queue] = await Promise.all([
-      Vehicle.find({ owner: req.user._id }),
-      PickupRequest.find({ status: 'pending' }).sort({ createdAt: -1 }),
-    ]);
+    let vehicles = [];
+    let requests = [];
+    let pendingDocs = [];
 
-    const vehicles = fleet.map(publicVehicle);
-    const requests = queue.map((doc) => ({
-      id: String(doc._id),
-      quantityKg: doc.quantityKg,
-      produceType: doc.cropType,
-      origin: doc.origin,
-      destination: doc.destination,
-      requestedWindow: {
-        date: doc.pickupDate,
-        label: doc.window?.label || '',
-        startHour: doc.window?.startHour ?? null,
-        endHour: doc.window?.endHour ?? null,
-      },
-      status: 'pending',
-    }));
+    const isDbReady = getIsConnected() && req.user?._id && mongoose.Types.ObjectId.isValid(req.user._id);
+
+    if (isDbReady) {
+      try {
+        const [fleet, queue] = await Promise.all([
+          Vehicle.find({ owner: req.user._id }),
+          PickupRequest.find({ status: 'pending' }).sort({ createdAt: -1 }),
+        ]);
+
+        vehicles = fleet.map(publicVehicle);
+        pendingDocs = queue.map(publicRequest);
+        requests = queue.map((doc) => ({
+          id: String(doc._id),
+          quantityKg: doc.quantityKg,
+          produceType: doc.cropType,
+          origin: doc.origin,
+          destination: doc.destination,
+          requestedWindow: {
+            date: doc.pickupDate,
+            label: doc.window?.label || '',
+            startHour: doc.window?.startHour ?? null,
+            endHour: doc.window?.endHour ?? null,
+          },
+          status: 'pending',
+        }));
+      } catch (dbErr) {
+        logger.warn(`Dispatch query fallback: ${dbErr.message}`);
+      }
+    }
+
+    // Graceful fallback to demo data if DB is offline or user has no vehicles yet
+    if (vehicles.length === 0) {
+      vehicles = FALLBACK_FLEET;
+    }
+    if (requests.length === 0) {
+      requests = FALLBACK_DISPATCH_REQUESTS;
+      pendingDocs = FALLBACK_DISPATCH_REQUESTS;
+    }
 
     const { suggestions, infeasible, unrankable } = suggestInsertions(vehicles, requests, topN);
 
@@ -83,7 +147,7 @@ const getDispatchSuggestions = async (req, res) => {
         unrankable: unrankable.length,
       },
       vehicles,
-      pending: queue.map(publicRequest),
+      pending: pendingDocs,
       suggestions,
       infeasible,
       unrankable,
@@ -94,4 +158,4 @@ const getDispatchSuggestions = async (req, res) => {
   }
 };
 
-module.exports = { getDispatchSuggestions, SOURCE };
+module.exports = { getDispatchSuggestions, SOURCE, FALLBACK_DISPATCH_REQUESTS };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Snowflake, Truck, Plus, CloudOff, RefreshCw, Zap, ShieldCheck, BatteryCharging } from 'lucide-react';
+import { MapPin, Snowflake, Truck, Plus, CloudOff, RefreshCw, Zap, ShieldCheck, BatteryCharging, Plane } from 'lucide-react';
 import { useT } from '../../i18n/useT';
 import { useFleet } from './useFleet';
 import { SectionHead } from '../../design/primitives/SectionHead';
@@ -7,6 +7,7 @@ import { Button } from '../../design/primitives/Button';
 import { AddVehicleForm } from './AddVehicleForm';
 import { CapacityBar } from './CapacityBar';
 import { EvFleetSimulator } from './EvFleetSimulator';
+import { DroneFleetDashboard } from '../drone/DroneFleetDashboard';
 
 const STATUS_KEYS = {
   Idle: 'dispatch.status.idle',
@@ -19,7 +20,7 @@ export const FleetScreen = () => {
   const { t, tCount, number, money } = useT();
   const { vehicles: registeredVehicles, loading, error, refresh } = useFleet();
   const [showForm, setShowForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'ev_optimizer'
+  const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'ev_optimizer' | 'drone_fleet'
 
   const totalCapacity = registeredVehicles.reduce((sum, v) => sum + (v.capacityKg || 0), 0);
   const totalLoad = registeredVehicles.reduce((sum, v) => sum + (v.currentLoadKg || 0), 0);
@@ -59,12 +60,24 @@ export const FleetScreen = () => {
           }`}
         >
           <Zap className="h-4 w-4 text-amber-400 fill-amber-400" />
-          <span>EV Route & Battery Optimizer</span>
+          <span>EV Optimizer</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('drone_fleet')}
+          className={`flex-1 py-2.5 px-4 font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+            activeTab === 'drone_fleet' ? 'bg-cyan-700 text-white shadow-sm' : 'text-cyan-900 hover:bg-cyan-50'
+          }`}
+        >
+          <Plane className="h-4 w-4 text-cyan-300" />
+          <span>KrishiFly Drones (4)</span>
         </button>
       </div>
 
       {activeTab === 'ev_optimizer' ? (
         <EvFleetSimulator />
+      ) : activeTab === 'drone_fleet' ? (
+        <DroneFleetDashboard />
       ) : (
         <>
           {error && (

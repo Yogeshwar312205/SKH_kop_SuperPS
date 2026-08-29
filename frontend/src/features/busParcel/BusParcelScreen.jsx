@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Package, TrendingUp, History, BookOpen } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, TrendingUp, History, BookOpen, Plane } from 'lucide-react';
 import { ConsignmentForm } from './ConsignmentForm';
 import { ImpactDashboard } from './ImpactDashboard';
 import { BookingHistory } from './BookingHistory';
 import { NetworkVisualization } from './NetworkVisualization';
+import { DroneBookingModal } from '../drone/DroneBookingModal';
+import { getDroneHubs } from '../../services/apiV2';
 
 /**
  * Bus-Parcel System Screen — Main entry point
@@ -13,9 +15,20 @@ import { NetworkVisualization } from './NetworkVisualization';
  * 2. Booking History (my consignments with tracking)
  * 3. Impact Dashboard (real-time metrics from database)
  * 4. Bus Network (stops, routes, live trips)
+ * Plus Express Drone Air Corridor Booking Modal
  */
 export const BusParcelScreen = () => {
   const [activeTab, setActiveTab] = useState('book');
+  const [isDroneBookingOpen, setIsDroneBookingOpen] = useState(false);
+  const [droneHubs, setDroneHubs] = useState([]);
+
+  useEffect(() => {
+    getDroneHubs()
+      .then((res) => {
+        if (res.hubs) setDroneHubs(res.hubs);
+      })
+      .catch(() => {});
+  }, []);
 
   const tabs = [
     { id: 'book', label: 'Book Consignment', icon: Package },
@@ -37,6 +50,14 @@ export const BusParcelScreen = () => {
             Send cargo on passenger buses • Zero extra vehicles • Save up to 62%
           </p>
         </div>
+
+        <button
+          onClick={() => setIsDroneBookingOpen(true)}
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-700 to-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:from-cyan-600 hover:to-emerald-600"
+        >
+          <Plane className="h-4 w-4 text-cyan-300" />
+          <span>⚡ Book Drone Express (&lt; 15m)</span>
+        </button>
       </div>
 
       {/* Tabs */}
@@ -73,6 +94,13 @@ export const BusParcelScreen = () => {
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'network' && <NetworkVisualization />}
       </div>
+
+      {/* Drone Express Booking Modal */}
+      <DroneBookingModal
+        isOpen={isDroneBookingOpen}
+        onClose={() => setIsDroneBookingOpen(false)}
+        hubs={droneHubs}
+      />
     </div>
   );
 };

@@ -464,6 +464,64 @@ export const optimizeEVRoute = async (evParams) => {
 };
 
 // ==============================================================================
+// Drone network (§KrishiFly)
+// ==============================================================================
+
+export const getDroneHubs = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/hubs');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone hubs.');
+  }
+};
+
+export const getDroneFleet = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/fleet');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone fleet.');
+  }
+};
+
+export const estimateDroneMission = async (estimateParams) => {
+  try {
+    const { data } = await apiClient.post('/v2/drone/estimate', estimateParams);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not estimate drone mission.');
+  }
+};
+
+export const dispatchDroneMission = async (dispatchParams) => {
+  try {
+    const { data } = await apiClient.post('/v2/drone/dispatch', dispatchParams);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not dispatch drone mission.');
+  }
+};
+
+export const simulateDroneMission = async (missionId, waypoints) => {
+  try {
+    const { data } = await apiClient.post(`/v2/drone/simulate/${missionId}`, { waypoints });
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not start flight simulation.');
+  }
+};
+
+export const getDroneAnalytics = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/analytics');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone analytics.');
+  }
+};
+
+// ==============================================================================
 // Export all
 // ==============================================================================
 
@@ -516,4 +574,12 @@ export default {
   getCandidates,
   optimizeEVSiting,
   optimizeEVRoute,
+
+  // Drone (§KrishiFly)
+  getDroneHubs,
+  getDroneFleet,
+  estimateDroneMission,
+  dispatchDroneMission,
+  simulateDroneMission,
+  getDroneAnalytics,
 };
