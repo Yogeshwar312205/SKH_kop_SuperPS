@@ -184,7 +184,7 @@ export const ConsignmentForm = () => {
         {/* Origin and Destination */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Origin Stop *
             </label>
             <select
@@ -192,7 +192,7 @@ export const ConsignmentForm = () => {
               onChange={(e) => handleChange('originStopId', e.target.value)}
               required
               disabled={loadingStops || stops.length === 0}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm font-semibold text-ink focus:bg-white focus:border-forest-600 focus:ring-2 focus:ring-forest-600/20 disabled:bg-slate-100 transition-all"
             >
               <option value="">Select origin...</option>
               {stops.map((stop) => (
@@ -204,7 +204,7 @@ export const ConsignmentForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Destination Stop *
             </label>
             <select
@@ -212,7 +212,7 @@ export const ConsignmentForm = () => {
               onChange={(e) => handleChange('destStopId', e.target.value)}
               required
               disabled={loadingStops || stops.length === 0}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm font-semibold text-ink focus:bg-white focus:border-forest-600 focus:ring-2 focus:ring-forest-600/20 disabled:bg-slate-100 transition-all"
             >
               <option value="">Select destination...</option>
               {stops.map((stop) => (

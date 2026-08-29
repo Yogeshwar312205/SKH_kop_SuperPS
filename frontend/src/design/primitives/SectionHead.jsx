@@ -29,9 +29,9 @@ export const SectionHead = ({ title, note, action, level = 'section', className 
 
   return (
     <header className={`space-y-2 ${className}`}>
-      {style.furrow && <div className="furrow w-16" aria-hidden="true" />}
+      {style.furrow && <div className="h-1.5 w-12 rounded-full bg-gradient-to-r from-forest-700 via-forest-500 to-turmeric-400" aria-hidden="true" />}
 
-      <div className={`flex items-end justify-between gap-4 ${style.rule}`}>
+      <div className={`flex items-end justify-between gap-4 border-b-2 border-forest-900/10 pb-2.5 ${className}`}>
         {/*
           Deliberately NOT `leading-none`. A one-line Latin heading looks a
           touch tighter with it, and a two-line Devanagari one loses the matras

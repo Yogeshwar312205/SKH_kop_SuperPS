@@ -19,13 +19,13 @@ export default {
      */
     borderRadius: {
       none: '0',
-      DEFAULT: '0',
-      sm: '0',
-      md: '0',
-      lg: '2px',
-      xl: '2px',
-      '2xl': '3px',
-      '3xl': '3px',
+      DEFAULT: '0.5rem',
+      sm: '0.25rem',
+      md: '0.375rem',
+      lg: '0.5rem',
+      xl: '0.75rem',
+      '2xl': '1rem',
+      '3xl': '1.5rem',
       full: '9999px',
     },
 
@@ -114,7 +114,7 @@ export default {
           900: '#3f1d0f',
         },
         // Document surfaces.
-        paper: '#EFECE1',   // page ground — warm manila
+        paper: '#F8F6F0',   // page ground — warm soft linen cream
         surface: '#FFFFFF', // data sits on white for maximum sunlight contrast
         rule: {
           DEFAULT: '#C9C4B4', // hairline ledger rule
@@ -131,7 +131,7 @@ export default {
          * same family as the Devanagari, not the other way round.
          */
         display: ['"Khand"', '"Noto Sans Devanagari"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        sans: ['"Mukta"', '"Noto Sans Devanagari"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"Mukta"', '"Noto Sans Devanagari"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       /*
        * The explicit leading utilities get the same treatment as the scale.

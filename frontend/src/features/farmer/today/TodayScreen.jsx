@@ -177,41 +177,42 @@ export const TodayScreen = () => {
           note={t('buyer.rates.farmerSubtitle')}
         />
         {isLoadingPostings ? (
-          <div className="border-2 border-ink bg-white p-4 text-center text-sm text-ink-faint">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-500 shadow-xs">
             {t('common.loading')}...
           </div>
         ) : buyerPostings.length === 0 ? (
-          <div className="border-2 border-ink bg-white p-4 text-center text-sm text-ink-faint">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-500 shadow-xs">
             {t('buyer.rates.emptyForCrop', { crop: cropName })}
           </div>
         ) : (
-          <div className="stagger space-y-3">
+          <div className="stagger space-y-3.5">
             {buyerPostings.map((posting) => (
-              <article key={posting.id} className="border-2 border-forest-700 bg-white">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-forest-700 bg-forest-50 px-4 py-3">
+              <article key={posting.id} className="rounded-2xl border border-emerald-800/20 bg-white shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-green-50/50 px-5 py-3.5">
                   <div>
-                    <span className="eyebrow text-forest-800">{posting.mandiName}</span>
-                    <p className="font-display text-2xl text-ink leading-tight">
-                      {t(`crops.${posting.cropType}`)} · <span className="text-base text-ink-soft">{posting.grade}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-forest-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">{posting.mandiName}</span>
+                    <p className="mt-1 font-display text-2xl font-bold text-ink leading-tight">
+                      {t(`crops.${posting.cropType}`)} · <span className="text-sm font-semibold text-slate-500">{posting.grade}</span>
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="eyebrow text-forest-800">{t('buyer.rates.price')}</p>
-                    <p className="font-display text-3xl text-forest-700 leading-none tnum">
-                      {rate(posting.offeredPricePerKg)} <span className="font-sans text-sm font-semibold text-ink-soft">{t('common.perKg')}</span>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('buyer.rates.price')}</p>
+                    <p className="font-display text-3xl font-bold text-forest-700 leading-none tnum">
+                      {rate(posting.offeredPricePerKg)} <span className="font-sans text-xs font-semibold text-slate-500">{t('common.perKg')}</span>
                     </p>
                   </div>
                 </div>
-                <div className="px-4 py-3 space-y-2 text-sm">
-                  <div className="flex flex-wrap justify-between items-center text-ink-soft gap-2">
-                    <span>{t('buyer.rates.trader')}: <strong className="text-ink">{posting.traderName}</strong></span>
-                    <span className="tnum font-semibold text-forest-700">{t('buyer.rates.needed')}: {number(posting.requiredQuantityKg)} {t('common.kg')}</span>
+                <div className="px-5 py-4 space-y-3 text-sm">
+                  <div className="flex flex-wrap justify-between items-center text-slate-600 gap-2">
+                    <span>{t('buyer.rates.trader')}: <strong className="text-slate-900 font-bold">{posting.traderName}</strong></span>
+                    <span className="tnum font-bold text-forest-700 bg-emerald-50 px-3 py-1 rounded-full text-xs">{t('buyer.rates.needed')}: {number(posting.requiredQuantityKg)} {t('common.kg')}</span>
                   </div>
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <Button
                       variant="accent"
                       icon={Handshake}
                       onClick={() => handleDealWithBuyer(posting)}
+                      className="w-full rounded-xl font-bold"
                     >
                       {t('buyer.rates.dealWithBuyer')}
                     </Button>

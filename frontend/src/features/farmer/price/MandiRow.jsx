@@ -21,50 +21,50 @@ export const MandiRow = ({ row, rank, expanded, onToggle, onContact }) => {
   const fuel = row.fuelDetails;
 
   return (
-    <div className={`rule-hair ${isBest ? 'bg-forest-50' : ''}`}>
+    <div className={`rounded-xl border transition-all duration-150 mb-2 ${isBest ? 'border-forest-600/40 bg-gradient-to-r from-emerald-50/60 to-white shadow-sm' : 'border-slate-200/80 bg-white hover:border-slate-300'}`}>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-forest-50"
+        className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left rounded-xl transition-all"
       >
         <span
-          className={`flex h-9 w-9 shrink-0 items-center justify-center border-2 ${
-            isBest ? 'border-forest-700 bg-forest-700 text-white' : 'border-rule text-ink-faint'
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold shadow-2xs ${
+            isBest ? 'bg-gradient-to-br from-forest-700 to-forest-800 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'
           }`}
           aria-hidden="true"
         >
-          {isBest ? <MapPin className="h-4 w-4" strokeWidth={2.5} /> : <span className="tnum text-sm font-bold">{rank + 1}</span>}
+          {isBest ? <MapPin className="h-4.5 w-4.5 text-emerald-300" strokeWidth={2.5} /> : <span className="tnum text-sm font-bold">{rank + 1}</span>}
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className={`block truncate leading-tight ${isBest ? 'font-bold text-ink' : 'text-ink'}`}>
+          <span className={`block truncate leading-tight ${isBest ? 'font-bold text-forest-950 text-base' : 'font-semibold text-ink'}`}>
             {name}
           </span>
-          <span className="mt-0.5 block truncate text-sm leading-tight text-ink-faint tnum">
+          <span className="mt-1 block truncate text-xs leading-tight text-slate-500 font-medium tnum">
             {row.distanceApprox && '~'}{number(row.distanceKm)} {t('common.km')}
             {' · '}
-            {rate(row.ratePerKg)}/{t('common.kg')}
+            <span className="text-slate-800 font-bold">{rate(row.ratePerKg)}/{t('common.kg')}</span>
             {row.arrivalQuintals ? ` · ${number(row.arrivalQuintals)} ${t('common.quintal')}` : ''}
           </span>
         </span>
 
         <span className="shrink-0 text-right">
-          <span className={`block font-display tnum leading-none ${isBest ? 'text-3xl text-forest-700' : 'text-2xl text-ink'}`}>
+          <span className={`block font-display tnum leading-none ${isBest ? 'text-3xl font-bold text-forest-700' : 'text-2xl font-bold text-ink'}`}>
             {money(row.net)}
           </span>
         </span>
 
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-ink-faint transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180 text-forest-700' : ''}`}
           strokeWidth={2.25}
           aria-hidden="true"
         />
       </button>
 
       {expanded && (
-        <div className="detail-enter border-t-2 border-rule bg-white px-4 py-3.5">
-          <p className="eyebrow mb-2.5">{t('price.breakdown.title')}</p>
+        <div className="detail-enter border-t border-slate-200/80 bg-slate-50/50 rounded-b-xl px-5 py-4">
+          <p className="eyebrow text-forest-800 mb-3 font-bold">{t('price.breakdown.title')}</p>
 
           <dl className="space-y-2 text-sm">
             <div className="flex items-baseline justify-between gap-3">

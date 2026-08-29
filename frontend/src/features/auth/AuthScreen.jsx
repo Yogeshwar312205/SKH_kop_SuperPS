@@ -189,22 +189,17 @@ export const AuthScreen = ({ initialMode = 'login', onBack }) => {
   };
 
   return (
-    <div className="min-h-full bg-paper">
+    <div className="min-h-full bg-slate-50/50">
       <div className="mx-auto grid min-h-full w-full max-w-6xl lg:grid-cols-12">
 
-        {/*
-          ---- The board ----
-          Full-bleed forest, the same painted surface as the verdict slab, so
-          the first thing anyone sees is the system's signature and not a
-          stock hero image. On a phone it compresses to a band: the promises
-          are worth reading once, but they are not worth a scroll before the
-          password box.
-        */}
-        <section className="flex min-h-full flex-col lg:col-span-5 bg-forest-700 px-5 py-7 text-white sm:px-8 sm:py-8 lg:px-9 lg:py-12">
+        {/* The board */}
+        <section className="flex min-h-full flex-col lg:col-span-5 bg-gradient-to-br from-forest-950 via-forest-900 to-forest-800 px-6 py-8 text-white sm:px-8 sm:py-10 lg:px-10 lg:py-12 lg:rounded-r-3xl shadow-xl">
           <div className="mb-8 flex items-center justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <span className="h-9 w-1.5 shrink-0 bg-turmeric-300" aria-hidden="true" />
-              <span className="font-display text-3xl leading-none tracking-tight">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-turmeric-300 to-turmeric-400 text-forest-950 shadow-md">
+                <Sprout className="h-6 w-6" />
+              </div>
+              <span className="font-display text-3xl font-bold leading-none tracking-tight">
                 Krushi<span className="text-turmeric-300">Flow</span>
               </span>
             </div>
@@ -214,33 +209,27 @@ export const AuthScreen = ({ initialMode = 'login', onBack }) => {
             </div>
           </div>
 
-          <p className="max-w-md font-display text-3xl text-white sm:text-4xl">
+          <p className="max-w-md font-display text-3xl font-bold text-white sm:text-4xl leading-tight">
             {t('auth.tagline')}
           </p>
 
-          <ul className="mt-7 hidden space-y-5 lg:block">
+          <ul className="mt-8 hidden space-y-6 lg:block">
             {PROMISES.map((promise) => {
               const Icon = promise.icon;
               return (
-                <li key={promise.titleKey} className="flex gap-3.5">
-                  <Icon className="mt-0.5 h-6 w-6 shrink-0 text-turmeric-300" strokeWidth={2.25} aria-hidden="true" />
+                <li key={promise.titleKey} className="flex gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-forest-800 text-turmeric-300 shadow-sm border border-forest-700">
+                    <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="font-display text-2xl leading-none">{t(promise.titleKey)}</p>
-                    <p className="mt-1 text-base text-forest-100">{t(promise.noteKey)}</p>
+                    <p className="font-display text-2xl font-bold leading-tight text-white">{t(promise.titleKey)}</p>
+                    <p className="mt-1 text-xs text-forest-200 leading-relaxed">{t(promise.noteKey)}</p>
                   </div>
                 </li>
               );
             })}
           </ul>
 
-          {/* mt-auto pins the picker to the panel's own bottom edge instead of
-              trailing the promise list with a fixed gap — on tall viewports the
-              green panel now stretches to fill the row (min-h-full + flex-col),
-              so without mt-auto the picker would sit stranded above a dead
-              green gap instead of anchored where a footer control belongs.
-              fullWidth so the control reaches the same right edge as the
-              tagline/promises above it, instead of shrinking to its own
-              content width and leaving green space beside it. */}
           <div className="mt-8 hidden lg:flex lg:mt-auto lg:pt-10">
             <LanguagePicker fullWidth />
           </div>

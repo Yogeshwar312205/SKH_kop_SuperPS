@@ -72,40 +72,43 @@ export const LandingScreen = ({ onEnter }) => {
       : 'demo';
 
   return (
-    <div className="min-h-full bg-forest-700 text-white">
+    <div className="min-h-full bg-gradient-to-br from-forest-950 via-forest-900 to-forest-800 text-white">
       <div className="mx-auto min-h-full w-full max-w-5xl px-6 py-10 sm:px-10 sm:py-14 lg:px-6 lg:py-20">
         <div className="stagger">
 
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5">
-              <span className="h-9 w-1.5 shrink-0 bg-turmeric-300" aria-hidden="true" />
-              <span className="font-display text-3xl leading-none tracking-tight">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-turmeric-300 to-turmeric-400 text-forest-950 shadow-md">
+                <Sprout className="h-6 w-6" />
+              </div>
+              <span className="font-display text-3xl font-bold leading-none tracking-tight">
                 Krushi<span className="text-turmeric-300">Flow</span>
               </span>
             </div>
             <LanguagePicker compact />
           </div>
 
-          {/* The board: the system's own rate-board motif, shown at hero scale
-              for the only time in the app — everywhere else it stays small. */}
-          <div className="mt-12 sm:mt-16">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs font-bold uppercase tracking-[0.14em] text-turmeric-300">
-                {t('landing.eyebrow')}
-              </span>
-              <MarketStatusStamp status={boardStatus} />
+          {/* The board */}
+          <div className="mt-12 sm:mt-16 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-[0.14em] text-turmeric-300">
+                  {t('landing.eyebrow')}
+                </span>
+                <MarketStatusStamp status={boardStatus} />
+              </div>
+              <p className="text-xs text-forest-200">{t('landing.boardNote')}</p>
             </div>
-            <p className="mt-2 text-sm text-forest-100">{t('landing.boardNote')}</p>
 
-            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {board.map(({ crop, ratePerKg, mandi, delta }) => {
                 const DeltaIcon = delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
-                const deltaColor = delta > 0 ? 'text-forest-600' : delta < 0 ? 'text-terracotta-600' : 'text-ink-faint';
+                const deltaColor = delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-red-500' : 'text-slate-400';
                 return (
-                  <div key={crop} className="bg-paper px-3.5 py-4 text-ink sm:px-4 sm:py-5">
-                    <p className="truncate text-sm font-bold text-ink-soft">{t(`crops.${crop}`)}</p>
-                    <p className="font-display text-3xl leading-none sm:text-4xl">{rate(ratePerKg)}</p>
-                    <div className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-ink-faint">
+                  <div key={crop} className="rounded-2xl bg-white p-4 text-ink shadow-md hover:shadow-lg transition-all duration-200">
+                    <p className="truncate text-xs font-bold text-slate-500 uppercase tracking-wider">{t(`crops.${crop}`)}</p>
+                    <p className="mt-1 font-display text-3xl font-bold leading-none text-forest-900 sm:text-4xl">{rate(ratePerKg)}</p>
+                    <div className="mt-2 flex items-center gap-1 text-xs font-semibold text-slate-600">
                       <DeltaIcon className={`h-3.5 w-3.5 shrink-0 ${deltaColor}`} strokeWidth={2.5} aria-hidden="true" />
                       <span className="truncate">{mandi}</span>
                     </div>
@@ -115,36 +118,38 @@ export const LandingScreen = ({ onEnter }) => {
             </div>
           </div>
 
-          <p className="mt-12 max-w-2xl font-display text-4xl sm:mt-16 sm:text-5xl lg:text-6xl">
+          <p className="mt-12 max-w-2xl font-display text-4xl font-bold leading-tight sm:mt-16 sm:text-5xl lg:text-6xl text-white">
             {t('landing.headline')}
           </p>
-          <p className="mt-4 max-w-xl text-lg text-forest-100 sm:text-xl">
+          <p className="mt-4 max-w-xl text-lg text-forest-100/90 sm:text-xl font-normal">
             {t('landing.sub')}
           </p>
 
-          <ul className="mt-10 grid gap-5 sm:mt-12 sm:grid-cols-3 sm:gap-6">
+          <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-6">
             {ROLE_ITEMS.map((role) => {
               const Icon = role.icon;
               return (
-                <li key={role.labelKey} className="flex gap-3">
-                  <Icon className="mt-0.5 h-6 w-6 shrink-0 text-turmeric-300" strokeWidth={2.25} aria-hidden="true" />
+                <li key={role.labelKey} className="flex gap-3.5 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-forest-800 text-turmeric-300 shadow-sm border border-forest-700">
+                    <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="font-display text-xl leading-none">{t(role.labelKey)}</p>
-                    <p className="mt-1 text-sm text-forest-100">{t(role.noteKey)}</p>
+                    <p className="font-display text-xl font-bold leading-tight text-white">{t(role.labelKey)}</p>
+                    <p className="mt-1 text-xs text-forest-200 leading-relaxed">{t(role.noteKey)}</p>
                   </div>
                 </li>
               );
             })}
           </ul>
 
-          <div className="mt-10 flex max-w-md flex-col gap-3 sm:mt-14">
-            <Button variant="accent" icon={ArrowRight} onClick={() => onEnter('login')}>
+          <div className="mt-10 flex max-w-md flex-col gap-3.5 sm:mt-14">
+            <Button variant="accent" icon={ArrowRight} onClick={() => onEnter('login')} className="rounded-xl shadow-lg font-bold">
               {t('auth.login')}
             </Button>
             <Button
               variant="secondary"
               onClick={() => onEnter('signup')}
-              className="border-white text-white hover:bg-white/10"
+              className="rounded-xl border-white/30 bg-white/10 text-white hover:bg-white/20 font-bold"
             >
               {t('auth.signup')}
             </Button>
@@ -153,7 +158,7 @@ export const LandingScreen = ({ onEnter }) => {
           <button
             type="button"
             onClick={() => onEnter('login')}
-            className="lift mt-6 text-sm font-semibold text-forest-100 underline decoration-forest-300 underline-offset-4 hover:text-white"
+            className="lift mt-6 text-sm font-semibold text-forest-200 underline decoration-turmeric-300 underline-offset-4 hover:text-white transition-colors"
           >
             {t('auth.demoTitle')}
           </button>

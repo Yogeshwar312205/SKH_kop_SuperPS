@@ -16,7 +16,7 @@ export const SegmentedToggle = ({ options, value, onChange, className = '' }) =>
   <div
     role="tablist"
     aria-orientation="horizontal"
-    className={`flex border-2 border-ink ${className}`}
+    className={`flex rounded-2xl border border-slate-200/80 bg-slate-100/80 p-1.5 gap-1.5 shadow-inner ${className}`}
   >
     {options.map((option) => {
       const Icon = option.icon;
@@ -31,15 +31,14 @@ export const SegmentedToggle = ({ options, value, onChange, className = '' }) =>
           aria-controls={`panel-${option.id}`}
           onClick={() => onChange(option.id)}
           className={`
-            flex flex-1 min-w-0 items-center justify-center gap-1.5 px-2 py-3
-            text-xs sm:text-sm leading-tight border-l-2 border-ink first:border-l-0
-            transition-colors duration-150
+            flex flex-1 min-w-0 items-center justify-center gap-2 px-3 py-2.5
+            text-xs sm:text-sm font-bold rounded-xl transition-all duration-150
             ${isActive
-              ? 'bg-forest-700 font-bold text-white'
-              : 'bg-white font-semibold text-ink-soft hover:bg-forest-50'}
+              ? 'bg-gradient-to-r from-forest-700 to-forest-800 text-white shadow-sm scale-[1.02]'
+              : 'text-slate-600 hover:text-forest-800 hover:bg-white/60'}
           `}
         >
-          {Icon && <Icon className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden="true" />}
+          {Icon && <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-emerald-300' : 'text-slate-400'}`} strokeWidth={2.25} aria-hidden="true" />}
           <span className="min-w-0 text-center">{option.label}</span>
         </button>
       );

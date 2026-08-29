@@ -25,20 +25,23 @@ export const BusParcelScreen = () => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 pt-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-800/20 bg-gradient-to-r from-emerald-50 via-white to-green-50/40 p-5 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Bus-Parcel System</h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">Eco Cargo Transit</span>
+          </div>
+          <h1 className="text-2xl font-bold text-ink mt-1">Passenger Bus-Parcel Logistics</h1>
+          <p className="text-sm text-slate-600 mt-1 font-medium">
             Send cargo on passenger buses • Zero extra vehicles • Save up to 62%
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="flex -mb-px space-x-8" aria-label="Tabs">
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-sm">
+        <nav className="flex flex-wrap gap-1.5" aria-label="Tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -48,15 +51,15 @@ export const BusParcelScreen = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                  flex flex-1 items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-150
                   ${isActive
-                    ? 'border-green-600 text-green-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-gradient-to-r from-forest-700 to-forest-800 text-white shadow-md shadow-forest-900/10'
+                    : 'text-slate-600 hover:text-forest-800 hover:bg-slate-50'
                   }
                 `}
               >
-                <Icon className="h-5 w-5" />
-                {tab.label}
+                <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-300' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
               </button>
             );
           })}

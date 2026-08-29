@@ -128,19 +128,19 @@ export const PriceScreen = () => {
       />
 
       {/* The headline answer stays put while the panels change beneath it. */}
-      <div className="detail-enter flex flex-wrap items-end justify-between gap-4 border-2 border-ink bg-white px-4 py-4">
+      <div className="detail-enter flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-emerald-800/20 bg-gradient-to-r from-emerald-50/70 via-white to-green-50/50 p-5 shadow-md">
         <div className="min-w-0">
-          <p className="eyebrow">{t('price.bestHere')}</p>
-          <p className="mt-1 truncate font-display text-3xl leading-none text-ink">{mandiLabel(t, best)}</p>
+          <p className="eyebrow text-emerald-800 font-bold">{t('price.bestHere')}</p>
+          <p className="mt-1 truncate font-display text-3xl font-bold leading-none text-ink">{mandiLabel(t, best)}</p>
           {best.distanceKm != null && (
-            <p className="mt-1.5 text-sm text-ink-faint tnum">
-              {best.distanceApprox && '~'}{number(best.distanceKm)} {t('common.km')} · {t('price.mandis.net')} {money(best.net)}
+            <p className="mt-1.5 text-sm text-slate-500 font-medium tnum">
+              {best.distanceApprox && '~'}{number(best.distanceKm)} {t('common.km')} · {t('price.mandis.net')} <strong className="text-slate-800">{money(best.net)}</strong>
             </p>
           )}
         </div>
-        <p className="font-display text-5xl leading-none tnum text-forest-700">
+        <p className="font-display text-5xl font-bold leading-none tnum text-forest-700">
           {rate(best.ratePerKg)}
-          <span className="ml-1.5 font-sans text-sm font-semibold text-ink-soft">
+          <span className="ml-1.5 font-sans text-xs font-semibold text-slate-500">
             {t('common.perKg')}
           </span>
         </p>
@@ -153,11 +153,9 @@ export const PriceScreen = () => {
 
         {panel === 'rates' && (
           <div className="space-y-4">
-            {/* The argument comes before the evidence: a farmer who reads only
-                one thing on this screen should read the trade-off, not row 1. */}
             <WhyFurther advantage={advantage} comparison={comparison} />
 
-            <div className="border-2 border-ink bg-white">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden">
               {visible.map((mandi, index) => (
                 <MandiRow
                   key={mandi.id}
@@ -173,7 +171,7 @@ export const PriceScreen = () => {
                 <button
                   type="button"
                   onClick={() => setShowAll(!showAll)}
-                  className="w-full px-4 py-3 text-left text-sm font-bold text-forest-700 underline underline-offset-2"
+                  className="w-full px-5 py-3 text-left text-sm font-bold text-forest-700 underline underline-offset-2 hover:bg-slate-50"
                 >
                   {showAll
                     ? t('price.mandis.showLess')
@@ -181,7 +179,7 @@ export const PriceScreen = () => {
                 </button>
               )}
 
-              <p className="px-4 py-3 text-sm leading-snug text-ink-faint">
+              <p className="px-5 py-3 text-xs leading-relaxed text-slate-500 border-t border-slate-100 bg-slate-50/50">
                 {t('price.mandis.explain')}
               </p>
             </div>
@@ -192,10 +190,10 @@ export const PriceScreen = () => {
 
         {panel === 'forecast' && (
           <div className="space-y-4">
-            <div className="border-2 border-ink bg-white p-4">
-              <p className="eyebrow mb-3">{t('price.forecast.nextDays', { count: AHEAD_DAYS })}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md">
+              <p className="eyebrow mb-3 font-bold text-slate-500">{t('price.forecast.nextDays', { count: AHEAD_DAYS })}</p>
               <ForecastChart points={forecast} />
-              <p className="mt-3 text-sm leading-snug text-ink-faint">{t('price.forecast.explain')}</p>
+              <p className="mt-3 text-xs leading-relaxed text-slate-500">{t('price.forecast.explain')}</p>
             </div>
             {provenance}
           </div>
@@ -203,7 +201,7 @@ export const PriceScreen = () => {
 
         {panel === 'costs' && (
           <div className="space-y-4">
-            <div className="border-2 border-ink bg-white px-4">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-md">
               <LedgerRow
                 label={t('price.costs.gross')}
                 sub={t('price.breakdown.rateQty', { rate: rate(best.ratePerKg), qty: number(best.quantityKg) })}
@@ -224,9 +222,7 @@ export const PriceScreen = () => {
               <LedgerRow label={t('price.costs.net')} value={money(best.net)} emphasis />
             </div>
 
-            {/* Per-kg, because that is the unit a farmer negotiates in — and the
-                unit in which "the truck ate the difference" becomes obvious. */}
-            <div className="border-2 border-ink bg-white px-4">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-md">
               <LedgerRow label={t('price.costs.netPerKg')} value={`${rate(best.net / Math.max(best.quantityKg, 1))}`} />
               <LedgerRow label={t('price.costs.freightPerKg')} value={`${rate(best.freightPerKg || 0)}`} />
             </div>

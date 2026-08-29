@@ -112,9 +112,9 @@ export const AppShell = () => {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
 
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-8 sm:px-6 lg:max-w-6xl lg:px-10">
+        <main className="mx-auto w-full max-w-4xl flex-1 px-4 pb-12 sm:px-6 lg:max-w-6xl lg:px-8">
           <Suspense fallback={<Loading />}>
-            <div key={activeTab}>{screenFor(activeTab)}</div>
+            <div key={activeTab} className="stagger-children transition-all duration-200">{screenFor(activeTab)}</div>
           </Suspense>
         </main>
 

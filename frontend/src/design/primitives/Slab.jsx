@@ -13,14 +13,14 @@ import React from 'react';
  */
 const TONES = {
   go: {
-    surface: 'bg-forest-700 text-white',
-    label: 'text-forest-200',
+    surface: 'bg-gradient-to-br from-forest-800 via-forest-700 to-forest-900 text-white shadow-xl border border-forest-600/30',
+    label: 'text-emerald-300 font-bold uppercase tracking-widest text-xs',
     sub: 'text-forest-100',
   },
   wait: {
-    surface: 'bg-turmeric-300 text-ink',
-    label: 'text-ink-soft',
-    sub: 'text-ink-soft',
+    surface: 'bg-gradient-to-br from-amber-300 via-turmeric-300 to-amber-400 text-ink shadow-xl border border-amber-400/40',
+    label: 'text-amber-950 font-bold uppercase tracking-widest text-xs',
+    sub: 'text-amber-900',
   },
 };
 
@@ -29,12 +29,7 @@ export const Slab = ({ tone = 'go', label, headline, children, className = '' })
 
   return (
     <section
-      /*
-       * Negative margins cancel the page gutter so the slab reaches both screen
-       * edges on a phone, the way a board fills a wall. `w-screen` is avoided:
-       * it overflows when a scrollbar is present on desktop.
-       */
-      className={`slab-enter slab-paint -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 py-7 sm:py-9 ${palette.surface} ${className}`}
+      className={`slab-enter slab-paint rounded-3xl px-6 sm:px-8 lg:px-10 py-7 sm:py-9 ${palette.surface} ${className}`}
     >
       {label && (
         <p className={`eyebrow mb-3 ${palette.label}`}>{label}</p>

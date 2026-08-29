@@ -183,14 +183,15 @@
   .field {
     width: 100%;
     min-height: 3.5rem;
-    padding: 0 0.875rem;
+    padding: 0 1rem;
     background: #ffffff;
-    border: 2px solid var(--ink);
-    border-radius: 2px;
-    font-size: 1.0625rem;
+    border: 1.5px solid var(--rule);
+    border-radius: 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--ink);
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   }
 
   .field::placeholder {
@@ -198,11 +199,14 @@
     color: var(--ink-faint);
   }
 
-  .field:hover { background: #fcfcfa; }
+  .field:hover { 
+    background: #ffffff; 
+    border-color: #A3A393;
+  }
 
   .field:focus {
-    /* :focus-visible outlines this too; the border shift is the felt part. */
     border-color: var(--forest);
+    box-shadow: 0 0 0 3px rgba(24, 83, 43, 0.12);
     outline: none;
   }
 
@@ -222,26 +226,28 @@
     display: flex;
     align-items: flex-start;
     gap: 0.625rem;
-    padding: 0.75rem 0.875rem;
-    border: 2px solid var(--ink);
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.75rem;
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: var(--lh-body);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
   .notice-bad {
-    border-color: #A4501F;
-    background: #fdf4ee;
-    color: #833d1b;
+    border-color: #FCA5A5;
+    background: #FEF2F2;
+    color: #991B1B;
   }
 
   .notice-good {
-    border-color: var(--forest);
-    background: #edf8ef;
-    color: #0f3a1d;
+    border-color: #86EFAC;
+    background: #F0FDF4;
+    color: #166534;
   }
 
-  /* ---- Buttons: square slabs, full-width by default -------------------- */
+  /* ---- Buttons: smooth rounded slabs, full-width by default -------------------- */
 
   .btn {
     display: flex;
@@ -249,86 +255,76 @@
     justify-content: center;
     gap: 0.625rem;
     min-height: 3.5rem; /* 56px — glove-and-thumb target */
-    padding: 0 1.25rem;
-    border-radius: 2px;
+    padding: 0 1.5rem;
+    border-radius: 0.75rem;
     font-weight: 700;
     font-size: 1.0625rem;
     line-height: 1.2;
     text-align: center;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .btn:active {
-    /* Physical feedback instead of a hover state — this is a touch device. */
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.99);
   }
 
   .btn-primary {
     background-color: var(--forest);
     color: #ffffff;
-    border: 2px solid var(--forest);
+    border: 1.5px solid var(--forest);
+    box-shadow: 0 4px 12px rgba(24, 83, 43, 0.25);
   }
-  .btn-primary:hover { background-color: #124021; border-color: #124021; }
+  .btn-primary:hover { 
+    background-color: #124021; 
+    border-color: #124021;
+    box-shadow: 0 6px 16px rgba(24, 83, 43, 0.35);
+  }
 
   .btn-secondary {
-    background-color: transparent;
+    background-color: #ffffff;
     color: var(--ink);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--rule);
   }
-  .btn-secondary:hover { background-color: rgba(20, 37, 26, 0.06); }
+  .btn-secondary:hover { 
+    background-color: #F8F6F0; 
+    border-color: var(--ink-faint);
+  }
 
   .btn-accent {
     background-color: var(--turmeric);
     color: var(--ink);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--ink);
+    box-shadow: 0 4px 12px rgba(237, 191, 79, 0.25);
   }
-  .btn-accent:hover { background-color: #e0a83a; }
+  .btn-accent:hover { 
+    background-color: #e0a83a; 
+    box-shadow: 0 6px 16px rgba(237, 191, 79, 0.35);
+  }
 
   /* ---- Data block ------------------------------------------------------ */
 
-  /*
-   * Replaces the old .krushi-card. White ground, single hairline border,
-   * square, no shadow. A docket lying on the desk, not a card floating above.
-   *
-   * NOT called `.block`, which is what it was until this bit me: Tailwind's
-   * display utility is also called `block`, and Tailwind generates responsive
-   * variants of component-layer classes — so `.lg\:block` and `.md\:block`
-   * inherited this white ground and hairline border. Every `md:block` and
-   * `lg:block` in the app was painting a white box, which is why the auth
-   * screen's promise list turned into white-on-white and the desktop TopBar
-   * grew a box around the user's name.
-   */
   .docket {
     background: #ffffff;
-    border: 1px solid var(--rule);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
   }
 
-  /* ---- Legacy aliases -------------------------------------------------- */
-
-  /*
-   * The driver and buyer dashboards are still on the previous design language,
-   * and they lean on three classes the rate-board rewrite removed:
-   * `.krushi-card`, `.btn-forest-primary`, `.btn-forest-secondary`. Nothing has
-   * defined them since — so "Accept job", "Post a rate" and every other action
-   * on those two screens has been rendering as unstyled browser text on a
-   * transparent ground.
-   *
-   * Re-pointed at the current language rather than left broken. Unlike `.btn`
-   * these deliberately set no height, padding or font-size: the legacy call
-   * sites pass their own (`px-4 py-2 text-xs`), and overriding it would wreck
-   * their layouts on the way to fixing their colour.
-   *
-   * Delete this block when the last screen using it has been rewritten.
-   */
   .krushi-card {
     background: #ffffff;
-    border: 1px solid var(--rule);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
   }
 
   .krushi-card-hover {
-    transition: border-color 0.15s ease;
+    transition: all 0.2s ease;
   }
-  .krushi-card-hover:hover { border-color: var(--ink); }
+  .krushi-card-hover:hover { 
+    border-color: var(--forest);
+    box-shadow: 0 8px 24px rgba(24, 83, 43, 0.1);
+  }
 
   .btn-forest-primary,
   .btn-forest-secondary {
@@ -569,3 +565,49 @@
    paper is the page ground, and a flash of white reads as a broken tile. */
 .maplibregl-map,
 .maplibregl-canvas-container { background: var(--paper); }
+
+/* ---- Premium AgriTech Modern Glass & Animation Utilities ---- */
+
+.agri-glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(24, 83, 43, 0.12);
+  box-shadow: 0 10px 30px -5px rgba(6, 78, 59, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  border-radius: 1.25rem;
+}
+
+.agri-gradient-header {
+  background: linear-gradient(135deg, #043927 0%, #085a3e 50%, #0b734f 100%);
+  color: #ffffff;
+}
+
+.agri-badge-glow {
+  position: relative;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.pulse-subtle {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.stagger-children > * {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
