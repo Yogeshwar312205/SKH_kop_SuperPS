@@ -48,6 +48,19 @@ export const getBusRoutes = async () => {
 };
 
 /**
+ * Create a new bus route.
+ * POST /api/v2/bus/routes
+ */
+export const createBusRoute = async (routeData) => {
+  try {
+    const { data } = await apiClient.post('/v2/bus/routes', routeData);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not create bus route.');
+  }
+};
+
+/**
  * Get bus trips for a date and/or route.
  * GET /api/v2/bus/trips?date=YYYY-MM-DD&routeId=xxx
  */
@@ -57,6 +70,32 @@ export const getBusTrips = async (filters = {}) => {
     return data;
   } catch (err) {
     throw toApiError(err, 'Could not load bus trips.');
+  }
+};
+
+/**
+ * Schedule a new bus trip.
+ * POST /api/v2/bus/trips
+ */
+export const createBusTrip = async (tripData) => {
+  try {
+    const { data } = await apiClient.post('/v2/bus/trips', tripData);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not schedule bus trip.');
+  }
+};
+
+/**
+ * Get TomTom traffic flow and optimal route details.
+ * GET /api/v2/bus/traffic
+ */
+export const getTomTomTraffic = async (params = {}) => {
+  try {
+    const { data } = await apiClient.get('/v2/bus/traffic', { params });
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load TomTom traffic data.');
   }
 };
 
@@ -419,9 +458,12 @@ export default {
   // Bus network
   getBusStops,
   getBusRoutes,
+  createBusRoute,
   getBusTrips,
+  createBusTrip,
   getTripManifest,
   getRoutePreview,
+  getTomTomTraffic,
   
   // Consignments
   createConsignment,

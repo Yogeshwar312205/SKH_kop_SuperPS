@@ -69,7 +69,8 @@
     "label": "मी आहे",
     "farmer": "शेतकरी",
     "buyer": "खरेदीदार",
-    "logistics": "गाडी मालक"
+    "logistics": "गाडी मालक",
+    "msrtc": "एसटी चालक"
   },
   "nav": {
     "farmer": {
@@ -89,6 +90,9 @@
       "fleet": "गाड्या",
       "routes": "रस्ते",
       "jobs": "कामं"
+    },
+    "msrtc": {
+      "dashboard": "एसटी पोर्टल"
     }
   },
   "today": {

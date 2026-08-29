@@ -32,8 +32,11 @@ const routeValidator = require('../services/routeValidator');
 
 router.get('/bus/stops', apiLimiter, protect, busController.getStops);
 router.get('/bus/routes', apiLimiter, protect, busController.getRoutes);
+router.post('/bus/routes', apiLimiter, protect, busController.createRoute);
 router.get('/bus/trips', apiLimiter, protect, busController.getTrips);
+router.post('/bus/trips', apiLimiter, protect, busController.createTrip);
 router.get('/bus/trips/:id/manifest', apiLimiter, protect, authorize('Logistics', 'Driver', 'Transporter', 'Admin'), busController.getTripManifest);
+router.get('/bus/traffic', apiLimiter, protect, busController.getTomTomTraffic);
 
 // Route validation and preview
 router.get('/bus/route-preview', apiLimiter, protect, async (req, res) => {

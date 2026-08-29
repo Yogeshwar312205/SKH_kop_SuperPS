@@ -69,7 +69,8 @@
     "label": "I am a",
     "farmer": "Farmer",
     "buyer": "Buyer",
-    "logistics": "Fleet owner"
+    "logistics": "Fleet owner",
+    "msrtc": "MSRTC Driver"
   },
   "nav": {
     "farmer": {
@@ -89,6 +90,9 @@
       "fleet": "Fleet",
       "routes": "Routes",
       "jobs": "Jobs"
+    },
+    "msrtc": {
+      "dashboard": "MSRTC Portal"
     }
   },
   "today": {

@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     // 'Driver'/'Transporter' are legacy: no longer offered at registration, but
     // kept here so accounts created before the fleet-owner model still load.
-    enum: ['Farmer', 'Logistics', 'Driver', 'Transporter', 'Trader', 'Buyer', 'APMC Buyer', 'Admin'],
+    enum: ['Farmer', 'Logistics', 'Driver', 'Transporter', 'Trader', 'Buyer', 'APMC Buyer', 'Admin', 'MSRTC', 'MSRTC Driver'],
     default: 'Farmer',
   },
   location: {

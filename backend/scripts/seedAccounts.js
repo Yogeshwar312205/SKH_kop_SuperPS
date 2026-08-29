@@ -36,6 +36,11 @@ const BUYERS = [
     role: 'APMC Buyer', address: 'Mumbai APMC, Vashi', coordinates: [73.0044, 19.0760] },
 ];
 
+const MSRTC_DRIVERS = [
+  { name: 'Ganesh Shinde (MSRTC)', email: 'driver.msrtc@krishiflow.ai', phone: '+91 98221 00112',
+    role: 'MSRTC Driver', address: 'Kopargaon ST Bus Depot, Maharashtra', coordinates: [74.4764, 19.8835] },
+];
+
 /*
  * Two fleets, deliberately different in shape, so the ranking has something
  * real to say. Sahyadri runs out of Nashik with a big freighter that is already
@@ -99,6 +104,9 @@ const run = async () => {
 
   console.log('\nBuyers');
   for (const b of BUYERS) await upsertUser(b);
+
+  console.log('\nMSRTC Drivers');
+  for (const m of MSRTC_DRIVERS) await upsertUser(m);
 
   console.log('\nFleet owners');
   for (const fleet of FLEETS) {

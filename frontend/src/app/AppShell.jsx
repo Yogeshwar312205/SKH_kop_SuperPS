@@ -30,6 +30,7 @@ const LogisticsJobsScreen = lazy(() => import('../features/logistics/LogisticsJo
 const BuyerRatesScreen = lazy(() => import('../features/buyer/BuyerRatesScreen').then((m) => ({ default: m.BuyerRatesScreen })));
 const BuyerInboundScreen = lazy(() => import('../features/buyer/BuyerInboundScreen').then((m) => ({ default: m.BuyerInboundScreen })));
 const ProfilePanel = lazy(() => import('../features/profile/ProfilePanel').then((m) => ({ default: m.ProfilePanel })));
+const MsrtcDashboard = lazy(() => import('../features/msrtc/MsrtcDashboard').then((m) => ({ default: m.MsrtcDashboard })));
 
 
 const Loading = () => {
@@ -49,6 +50,9 @@ const screenFor = (tabId) => {
       return <CropScreen />;
     case 'bus-parcel':
       return <BusParcelScreen />;
+
+    case 'msrtc-dashboard':
+      return <MsrtcDashboard />;
 
     /* Every role reaches this from the top bar's identity chip. */
     case PROFILE_TAB:

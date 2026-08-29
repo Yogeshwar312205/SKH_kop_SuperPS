@@ -1,8 +1,9 @@
 const rateLimit = require('express-rate-limit');
 
+// High-capacity API limiter for local development and active driver/farmer portals
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 1000 : 10000, // relaxed limit for active usage & dev
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -13,7 +14,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: process.env.NODE_ENV === 'production' ? 50 : 500,
   message: {
     success: false,
     message: 'Too many authentication attempts, please try again later.'
@@ -23,7 +24,7 @@ const authLimiter = rateLimit({
 // Separate limiter for dispatch endpoints - fleet owners may check frequently
 const dispatchLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute (reasonable for manual refreshes)
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // relaxed for local testing
   standardHeaders: true,
   legacyHeaders: false,
   message: {

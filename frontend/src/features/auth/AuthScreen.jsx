@@ -47,6 +47,7 @@ const SAMPLE_ACCOUNTS = [
   { role: ROLES.FARMER, email: 'kiran.farmer@krishiflow.ai', icon: Sprout, labelKey: 'roles.farmer' },
   { role: ROLES.LOGISTICS, email: 'vikram.fleet@krishiflow.ai', icon: Boxes, labelKey: 'roles.logistics' },
   { role: ROLES.BUYER, email: 'rajesh.buyer@krishiflow.ai', icon: Store, labelKey: 'roles.buyer' },
+  { role: ROLES.MSRTC, email: 'driver.msrtc@krishiflow.ai', icon: Truck, labelKey: 'roles.msrtc' },
 ];
 const SAMPLE_PASSWORD = 'krishi@2026';
 
@@ -281,11 +282,12 @@ export const AuthScreen = ({ initialMode = 'login', onBack }) => {
                   label={t('auth.chooseRole')}
                   value={role}
                   onChange={setRole}
-                  columns={3}
+                  columns={4}
                   options={[
                     { id: ROLES.FARMER, label: t('roles.farmer'), icon: Sprout },
                     { id: ROLES.LOGISTICS, label: t('roles.logistics'), icon: Boxes },
                     { id: ROLES.BUYER, label: t('roles.buyer'), icon: Store },
+                    { id: ROLES.MSRTC, label: t('roles.msrtc'), icon: Truck },
                   ]}
                 />
               )}

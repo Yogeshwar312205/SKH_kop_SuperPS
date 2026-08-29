@@ -12,6 +12,7 @@ const ROLE_KEYS = {
   [ROLES.FARMER]: 'roles.farmer',
   [ROLES.BUYER]: 'roles.buyer',
   [ROLES.LOGISTICS]: 'roles.logistics',
+  [ROLES.MSRTC]: 'roles.msrtc',
 };
 
 export const TopBar = () => {
@@ -70,7 +71,7 @@ export const TopBar = () => {
             <span className="hidden xs:inline sm:inline">AI Sahayak</span>
           </button>
 
-          {/* Role Pill */}
+          {/* Static Role Pill Badge */}
           <span
             className="
               flex h-9 items-center rounded-full border border-slate-200 bg-slate-100/80 px-3.5 text-xs

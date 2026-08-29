@@ -69,7 +69,8 @@
     "label": "मैं हूँ",
     "farmer": "किसान",
     "buyer": "खरीदार",
-    "logistics": "गाडी मालिक"
+    "logistics": "गाडी मालिक",
+    "msrtc": "एसटी ड्राइवर"
   },
   "nav": {
     "farmer": {
@@ -89,6 +90,9 @@
       "fleet": "गाडियाँ",
       "routes": "रास्ते",
       "jobs": "काम"
+    },
+    "msrtc": {
+      "dashboard": "एसटी पोर्टल"
     }
   },
   "today": {

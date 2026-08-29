@@ -17,22 +17,13 @@ import { Sun, IndianRupee, Truck, Sprout, ClipboardList, Route, Store, PackageCh
 export const ROLES = {
   FARMER: 'Farmer',
   BUYER: 'APMC Buyer',
-  /*
-   * The fleet owner — and there is deliberately no 'Driver' role beside it.
-   *
-   * A driver is a name and a phone number attached to a vehicle, not an
-   * account. The person who decides where a truck goes is the person who owns
-   * it, and giving drivers their own logins turned this into a ride-hailing
-   * app: a farmer hailing individual trucks, each accepting or declining on its
-   * own. That makes the capacitated VRP meaningless, because nobody is
-   * optimising a fleet. Old 'Driver'/'Transporter' accounts are read as fleet
-   * owners below.
-   */
   LOGISTICS: 'Logistics',
+  MSRTC: 'MSRTC Driver',
 };
 
 /** Older stored sessions and the backend use several spellings for each role. */
 export const normaliseRole = (role) => {
+  if (role === 'MSRTC' || role === 'MSRTC Driver' || role === 'Bus Operator') return ROLES.MSRTC;
   if (role === 'Logistics' || role === 'Logistics Provider' || role === 'Fleet'
     // Legacy. These accounts own vehicles like anyone else.
     || role === 'Transporter' || role === 'Driver') return ROLES.LOGISTICS;
@@ -61,10 +52,16 @@ const BUYER_TABS = [
   { id: 'buyer-profile', labelKey: 'nav.buyer.profile', icon: User },
 ];
 
+const MSRTC_TABS = [
+  { id: 'msrtc-dashboard', labelKey: 'nav.msrtc.dashboard', icon: Truck },
+  { id: 'bus-parcel',       labelKey: 'nav.farmer.busparcel', icon: Package },
+];
+
 export const TABS_BY_ROLE = {
   [ROLES.FARMER]: FARMER_TABS,
   [ROLES.BUYER]: BUYER_TABS,
   [ROLES.LOGISTICS]: LOGISTICS_TABS,
+  [ROLES.MSRTC]: MSRTC_TABS,
 };
 
 /**
@@ -92,6 +89,6 @@ export const isTabValidForRole = (tabId, role) =>
   tabId === PROFILE_TAB || tabsForRole(role).some((tab) => tab.id === tabId);
 
 export const ALL_TAB_IDS = [
-  ...[...FARMER_TABS, ...BUYER_TABS, ...LOGISTICS_TABS].map((t) => t.id),
+  ...[...FARMER_TABS, ...BUYER_TABS, ...LOGISTICS_TABS, ...MSRTC_TABS].map((t) => t.id),
   PROFILE_TAB,
 ];

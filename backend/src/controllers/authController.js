@@ -13,7 +13,7 @@ const { getJwtSecret } = require('../config/jwt');
  * Existing Driver accounts still log in and are read as fleet owners; see
  * normaliseRole in frontend/src/app/routes.js.
  */
-const PUBLIC_ROLES = ['Farmer', 'Logistics', 'Trader', 'Buyer', 'APMC Buyer'];
+const PUBLIC_ROLES = ['Farmer', 'Logistics', 'Trader', 'Buyer', 'APMC Buyer', 'MSRTC', 'MSRTC Driver'];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

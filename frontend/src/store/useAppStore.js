@@ -88,6 +88,11 @@ export const useAppStore = create((set, get) => ({
     set({ user, token, activeRole: role });
   },
 
+  setActiveRole: (role) => {
+    localStorage.setItem('activeRole', role);
+    set({ activeRole: role });
+  },
+
   /**
    * Merges edited (or freshly fetched) account details into the session.
    *
