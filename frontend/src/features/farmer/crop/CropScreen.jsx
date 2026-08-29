@@ -1,0 +1,298 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Sprout, Scale, CalendarDays, MapPin, Snowflake, Check, LocateFixed, Loader2,
+} from 'lucide-react';
+import { useAppStore } from '../../../store/useAppStore';
+import { useT } from '../../../i18n/useT';
+import { CROP_OPTIONS, PERISHABLE_CROPS } from '../../../utils/constants';
+import { fetchAgmarknetCommodities } from '../../../services/api';
+import { SectionHead } from '../../../design/primitives/SectionHead';
+import { Field } from '../../../design/primitives/Field';
+import { Button } from '../../../design/primitives/Button';
+
+/**
+ * The four facts every other screen is computed from.
+ *
+ * Today's verdict, the mandi comparison, the freight estimate and the cold-chain
+ * suggestion all read `cropDetails` — and until this screen existed there was no
+ * way for a farmer to set any of it. The app opened on a hardcoded 2,500 kg of
+ * tomatoes and stayed there.
+ *
+ * Deliberately four questions and no more. Each one changes a number the farmer
+ * will see; anything that would not is not asked.
+ */
+
+
+export const CropScreen = () => {
+  const cropDetails = useAppStore((state) => state.cropDetails);
+  const setCropDetails = useAppStore((state) => state.setCropDetails);
+  const farmerAddress = useAppStore((state) => state.farmerAddress);
+  const farmerOrigin = useAppStore((state) => state.farmerOrigin);
+  const setFarmerOrigin = useAppStore((state) => state.setFarmerOrigin);
+  const { t, number } = useT();
+
+  const [draft, setDraft] = useState({
+    cropType: cropDetails.cropType,
+    quantityKg: String(cropDetails.quantityKg),
+    harvestTime: cropDetails.harvestTime,
+    address: farmerAddress,
+  });
+  const [saved, setSaved] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [quantityError, setQuantityError] = useState('');
+
+  /*
+   * Every commodity Maharashtra's mandis are actually reporting — around 119 of
+   * them, against the nineteen we have translated buttons for.
+   *
+   * The buttons stay the shortlist, because a two-column grid of 119 untranslated
+   * English strings is not a crop picker. But a farmer growing drumstick or
+   * safflower should not be told the app doesn't know about their crop when the
+   * government feed has today's rate for it, so the rest are reachable from the
+   * select below under their published Agmarknet names.
+   */
+  const [liveCommodities, setLiveCommodities] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchAgmarknetCommodities('Maharashtra').then((data) => {
+      if (cancelled || !data?.commodities?.length) return;
+      // Single-market commodities are dropped: with one mandi reporting there
+      // is nothing to compare, and comparison is the only thing we offer.
+      setLiveCommodities(data.commodities.filter((c) => c.marketCount > 1));
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const extraCommodities = liveCommodities.filter((c) => !CROP_OPTIONS.includes(c.name));
+  const isExtraCrop = !CROP_OPTIONS.includes(draft.cropType);
+
+  const update = (key, value) => {
+    setDraft((current) => ({ ...current, [key]: value }));
+    setSaved(false);
+  };
+
+  const isPerishable = PERISHABLE_CROPS.has(draft.cropType);
+
+  const useMyLocation = () => {
+    setLocationError('');
+
+    if (!navigator.geolocation) {
+      setLocationError(t('crop.locationFailed'));
+      return;
+    }
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        let address = draft.address;
+
+        /*
+         * OpenStreetMap's Nominatim reverse endpoint is free and needs no API
+         * key, unlike Google's — worth the round trip so "Use my location"
+         * visibly fills the address box instead of only moving a coordinate
+         * the farmer can't see. If it fails (offline, rate-limited) the
+         * coordinates we already have are still good enough for routing.
+         */
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=16`,
+            { headers: { Accept: 'application/json' } }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            if (data?.display_name) address = data.display_name;
+          }
+        } catch {
+          // Keep the coordinates; the address text just stays whatever it was.
+        }
+
+        setFarmerOrigin([longitude, latitude], address);
+        update('address', address);
+        setLocating(false);
+      },
+      () => {
+        setLocationError(t('crop.locationFailed'));
+        setLocating(false);
+      },
+      { timeout: 10000, maximumAge: 300000 }
+    );
+  };
+
+  const save = (event) => {
+    event.preventDefault();
+    setQuantityError('');
+
+    const quantity = Number(draft.quantityKg);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      setQuantityError(t('crop.quantityInvalid'));
+      return;
+    }
+
+    setCropDetails({
+      cropType: draft.cropType,
+      quantityKg: quantity,
+      harvestTime: draft.harvestTime,
+      temperatureSensitivity: PERISHABLE_CROPS.has(draft.cropType) ? 'High' : 'Normal',
+    });
+    setFarmerOrigin(farmerOrigin, draft.address.trim() || farmerAddress);
+    setDraft((current) => ({ ...current, quantityKg: String(quantity) }));
+    setSaved(true);
+  };
+
+  return (
+    <div className="pt-4 pb-4">
+      <form onSubmit={save} className="space-y-5">
+        <SectionHead level="screen" title={t('crop.title')} />
+
+        {/* ---- Which crop ---- */}
+        <fieldset>
+          <legend className="field-label">{t('crop.which')}</legend>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {CROP_OPTIONS.map((crop) => {
+              const isActive = draft.cropType === crop;
+              return (
+                <button
+                  key={crop}
+                  type="button"
+                  onClick={() => update('cropType', crop)}
+                  aria-pressed={isActive}
+                  className={`
+                    lift flex min-h-[3.5rem] items-center justify-center gap-2 border-2 px-2 py-3
+                    ${isActive
+                      ? 'border-ink bg-forest-700 text-white'
+                      : 'border-rule bg-white text-ink-soft hover:border-ink'}
+                  `}
+                >
+                  <Sprout
+                    className={`h-5 w-5 shrink-0 ${isActive ? 'text-turmeric-300' : 'text-ink-faint'}`}
+                    strokeWidth={2.25}
+                    aria-hidden="true"
+                  />
+                  <span className={`text-base leading-none ${isActive ? 'font-bold' : 'font-semibold'}`}>
+                    {t(`crops.${crop}`)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {(extraCommodities.length > 0 || isExtraCrop) && (
+            <div className="mt-3">
+              <label className="field-label" htmlFor="other-crop">{t('crop.otherCrops')}</label>
+              <select
+                id="other-crop"
+                className="field"
+                value={isExtraCrop ? draft.cropType : ''}
+                onChange={(event) => event.target.value && update('cropType', event.target.value)}
+              >
+                <option value="">{t('crop.pickCrop')}</option>
+                {isExtraCrop && !extraCommodities.some((c) => c.name === draft.cropType) && (
+                  <option value={draft.cropType}>{draft.cropType}</option>
+                )}
+                {extraCommodities.map((commodity) => (
+                  <option key={commodity.name} value={commodity.name}>
+                    {commodity.name} · {t('crop.mandiCount', { count: commodity.marketCount })}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-sm text-ink-faint">{t('crop.otherCropsHint')}</p>
+            </div>
+          )}
+        </fieldset>
+
+        {/*
+          The cold-vehicle note is attached to the crop choice rather than being
+          a switch of its own. It is a consequence, not a decision — and stating
+          it here is what stops the Transport screen's cold-vehicle upcharge
+          from arriving as a surprise.
+        */}
+        {isPerishable && (
+          <p className="detail-enter flex items-start gap-2.5 border-l-4 border-forest-700 bg-forest-50 px-3.5 py-3">
+            <Snowflake className="mt-0.5 h-5 w-5 shrink-0 text-forest-700" strokeWidth={2.25} aria-hidden="true" />
+            <span className="min-w-0">
+              <span className="block font-bold text-ink">{t('crop.spoils')}</span>
+              <span className="block text-sm text-ink-soft">{t('crop.spoilsWhy')}</span>
+            </span>
+          </p>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Field
+              label={t('crop.howMuch')}
+              icon={Scale}
+              type="number"
+              inputMode="numeric"
+              min="1"
+              step="1"
+              value={draft.quantityKg}
+              onChange={(event) => {
+                update('quantityKg', event.target.value);
+                setQuantityError('');
+              }}
+              hint={t('crop.quantityHint')}
+            />
+            {quantityError && (
+              <p className="mt-1.5 text-sm font-semibold text-terracotta-600" role="alert">{quantityError}</p>
+            )}
+          </div>
+
+          <Field
+            label={t('crop.harvest')}
+            icon={CalendarDays}
+            type="date"
+            value={draft.harvestTime}
+            onChange={(event) => update('harvestTime', event.target.value)}
+          />
+        </div>
+
+        {/* ---- Where ---- */}
+        <div className="space-y-2">
+          <Field
+            label={t('crop.where')}
+            icon={MapPin}
+            value={draft.address}
+            onChange={(event) => update('address', event.target.value)}
+            placeholder={t('crop.village')}
+            autoComplete="address-level2"
+          />
+
+          <button
+            type="button"
+            onClick={useMyLocation}
+            disabled={locating}
+            className="flex items-center gap-2 text-base font-bold text-forest-700 underline underline-offset-2 disabled:opacity-60"
+          >
+            {locating
+              ? <Loader2 className="h-5 w-5 shrink-0 animate-spin" strokeWidth={2.25} aria-hidden="true" />
+              : <LocateFixed className="h-5 w-5 shrink-0" strokeWidth={2.25} aria-hidden="true" />}
+            {locating ? t('crop.locating') : t('crop.useLocation')}
+          </button>
+
+          {locationError && (
+            <p className="notice notice-bad" role="alert">{locationError}</p>
+          )}
+        </div>
+
+        <Button type="submit" icon={Check}>{t('crop.saveCrop')}</Button>
+
+        {saved && (
+          <p className="notice notice-good detail-enter" role="status">
+            <Check className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+            <span>
+              {t('crop.saved')}{' '}
+              <span className="tnum">
+                {t(`crops.${cropDetails.cropType}`)} · {number(cropDetails.quantityKg)} {t('common.kg')}
+              </span>
+            </span>
+          </p>
+        )}
+      </form>
+    </div>
+  );
+};
+
+export default CropScreen;

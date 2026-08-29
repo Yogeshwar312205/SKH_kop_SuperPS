@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" class="h-full bg-paper">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KrushiFlow — फसल के भाव और गाडी बुकिंग</title>
+    <meta name="theme-color" content="#18532B" />
+    <meta name="description" content="Crop rates, sell-or-wait advice, and vehicle booking for farmers. Hindi, Marathi, English." />
+    <!--
+      Two Devanagari-native families, both carrying their own Latin:
+        Khand (Indian Type Foundry) — condensed signage, for headlines and numerals
+        Mukta (Ek Type)            — body and UI, in all three languages
+
+      Down from four families to two, which matters on a rural connection.
+      Noto Sans Devanagari is the fallback: it ships preinstalled on effectively
+      every Android handset, so Hindi and Marathi render correctly on first paint
+      even if the webfonts never arrive.
+
+      TODO before submission: self-host these two as subset woff2 and drop the
+      cross-origin requests entirely.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Khand:wght@400;500;600;700&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!--
+      Map CSS is imported by the map component itself (MapLibre), so it is
+      bundled and code-split with it rather than fetched from a CDN on every
+      page load. One less blocking cross-origin request before first paint.
+    -->
+  </head>
+  <body class="h-full font-sans antialiased bg-paper text-ink selection:bg-forest-700 selection:text-white">
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
