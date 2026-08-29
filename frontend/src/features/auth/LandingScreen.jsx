@@ -26,13 +26,13 @@ import { BOARD_CROPS } from '../../utils/constants';
  */
 
 const ROLE_ITEMS = [
-  { icon: Sprout, labelKey: 'roles.farmer', noteKey: 'landing.roleFarmer', badge: 'शेतकरी मोफत', color: 'emerald' },
-  { icon: Store, labelKey: 'roles.buyer', noteKey: 'landing.roleBuyer', badge: 'व्यापारी थेट व्यवहार', color: 'amber' },
-  { icon: Boxes, labelKey: 'roles.logistics', noteKey: 'landing.roleLogistics', badge: 'वाहनांचे स्मार्ट नियोजन', color: 'sky' },
+  { icon: Sprout, labelKey: 'roles.farmer', noteKey: 'landing.roleFarmer', badgeKey: 'landing.roleFarmerBadge', color: 'emerald' },
+  { icon: Store, labelKey: 'roles.buyer', noteKey: 'landing.roleBuyer', badgeKey: 'landing.roleBuyerBadge', color: 'amber' },
+  { icon: Boxes, labelKey: 'roles.logistics', noteKey: 'landing.roleLogistics', badgeKey: 'landing.roleLogisticsBadge', color: 'sky' },
 ];
 
 export const LandingScreen = ({ onEnter }) => {
-  const { t, rate } = useT();
+  const { t, rate, lang } = useT();
   const [openFaq, setOpenFaq] = useState(null);
 
   // Live market board crops
@@ -75,20 +75,20 @@ export const LandingScreen = ({ onEnter }) => {
 
   return (
     <div className="min-h-full bg-white text-slate-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
-      
-      {/* Sticky Navigation Header */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+
+      {/* Sticky Navigation Header - Green Background */}
+      <header className="sticky top-0 z-50 bg-forest-900 backdrop-blur-md border-b border-forest-950/40 shadow-md transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-md shadow-emerald-700/20">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-950/30">
               <Sprout className="h-6 w-6 stroke-[2.5]" />
             </div>
             <div>
-              <span className="font-display text-2xl font-extrabold tracking-tight text-forest-950">
-                Krushi<span className="text-emerald-600">Flow</span>
+              <span className="font-display text-2xl font-extrabold tracking-tight text-white">
+                Krushi<span className="text-emerald-400">Flow</span>
               </span>
-              <span className="hidden sm:inline-block ml-2 text-[10px] uppercase font-bold tracking-widest bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                Kopargaon APMC & Logistics
+              <span className="hidden sm:inline-block ml-2 text-[10px] uppercase font-bold tracking-widest bg-forest-950/60 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-700/50">
+                {t('landing.apmcBadge')}
               </span>
             </div>
           </div>
@@ -97,14 +97,15 @@ export const LandingScreen = ({ onEnter }) => {
             <LanguagePicker compact />
             <button
               onClick={() => onEnter('login')}
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-slate-700 hover:text-emerald-700 px-3 py-2 rounded-xl transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-white/90 hover:text-white px-3 py-2 rounded-xl transition-colors"
             >
               {t('auth.login')}
             </button>
             <Button
               variant="primary"
+              full={false}
               onClick={() => onEnter('signup')}
-              className="rounded-xl shadow-md shadow-emerald-700/20 font-bold px-4 py-2 text-sm bg-forest-900 text-white hover:bg-forest-800"
+              className="rounded-xl shadow-md shadow-emerald-950/40 font-bold px-4 py-2 text-sm bg-forest-950 text-white hover:bg-forest-800 border border-emerald-700/60"
             >
               {t('landing.ctaAccount')}
             </Button>
@@ -112,103 +113,180 @@ export const LandingScreen = ({ onEnter }) => {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="mx-auto max-w-7xl px-6 py-8 sm:py-12 lg:px-8">
-        
-        {/* HERO SECTION - Light Theme */}
-        <section className="grid lg:grid-cols-12 gap-12 items-center py-6 lg:py-10">
+      {/* HERO SECTION WITH FULL BACKGROUND VIDEO */}
+      <div className="relative w-full overflow-hidden bg-slate-950">
+        {/* AGRI.mp4 Background Video Layer - Full Visibility with Dark Gradient Scrim */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover object-center"
+          >
+            <source src="/videos/AGRI.mp4" type="video/mp4" />
+            <source src="/AGRI.mp4" type="video/mp4" />
+          </video>
+
+          {/* Left-focused dark gradient overlay for crystal clear font contrast while keeping video on right visible */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/20" />
           
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-1.5 shadow-sm">
-              <Leaf className="h-4 w-4 text-emerald-600" />
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-                {t('landing.heroEyebrow')}
-              </span>
+          {/* Subtle bottom fade so it transitions cleanly into the lower page content */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
+        </div>
+
+        {/* Hero Section Container - Matched to Reference Design */}
+        <section className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-8 sm:py-12 lg:py-14">
+
+          {/* Top Row: Eyebrow Brand Tag on Left, Metric Badges on Right */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 sm:pb-8">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <Sprout className="h-5 w-5 stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="font-display text-sm font-black uppercase tracking-widest text-white">
+                  KRUSHIFLOW CONNECT
+                </span>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                  {t('landing.heroEyebrow')}
+                </p>
+              </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.12] text-slate-900 tracking-tight">
-              {t('landing.heroTitle')}
-            </h1>
+            {/* Right Metric Glass Cards */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/70 backdrop-blur-md px-3.5 py-2 shadow-lg">
+                <Leaf className="h-4 w-4 text-emerald-400" />
+                <div className="text-left">
+                  <p className="text-[11px] font-black text-white leading-none">35%</p>
+                  <p className="text-[9px] font-medium text-slate-300 leading-none">{t('landing.metricFreight')}</p>
+                </div>
+              </div>
 
-            {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl font-normal">
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/70 backdrop-blur-md px-3.5 py-2 shadow-lg">
+                <Zap className="h-4 w-4 text-amber-400" />
+                <div className="text-left">
+                  <p className="text-[11px] font-black text-white leading-none">Solar EV</p>
+                  <p className="text-[9px] font-medium text-slate-300 leading-none">{t('landing.metricStations')}</p>
+                </div>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/70 backdrop-blur-md px-3.5 py-2 shadow-lg">
+                <Truck className="h-4 w-4 text-sky-400" />
+                <div className="text-left">
+                  <p className="text-[11px] font-black text-white leading-none">AI Powered</p>
+                  <p className="text-[9px] font-medium text-slate-300 leading-none">{t('landing.metricLogistics')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Left Column Content Block (leaves farmer visual on the right clear) */}
+          <div className="max-w-2xl space-y-6 text-left">
+
+            {/* Main Headline - Uppercase Two-Tone Color */}
+            {lang === 'en' ? (
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-[44px] font-black uppercase leading-[1.08] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
+                <span className="text-white">EMPOWERING RURAL FARMERS </span>
+                <br />
+                <span className="text-white">WITH </span>
+                <span className="text-emerald-400">REAL-TIME APMC MANDI RATES, </span>
+                <br />
+                <span className="text-emerald-400">VRP FLEET OPTIMIZATION &amp; </span>
+                <br />
+                <span className="text-emerald-400">SOLAR EV </span>
+                <span className="text-white">STATIONS</span>
+              </h1>
+            ) : lang === 'hi' ? (
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-[38px] font-black leading-[1.18] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
+                <span className="text-white">लाइव एपीएमसी मंडी भाव, </span>
+                <span className="text-emerald-400">वीआरपी रूट ऑप्टिमाइजेशन </span>
+                <br />
+                <span className="text-white">और </span>
+                <span className="text-emerald-400">सोलर ईव्ही चार्जिंग स्टेशन </span>
+                <span className="text-white">से किसान सशक्तिकरण</span>
+              </h1>
+            ) : (
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-[38px] font-black leading-[1.18] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
+                <span className="text-white">लाइव्ह एपीएमसी बाजारभाव, </span>
+                <span className="text-emerald-400">व्हीआरपी मार्ग नियोजन </span>
+                <br />
+                <span className="text-white">आणि </span>
+                <span className="text-emerald-400">सौर ईव्ही चार्जिंग स्टेशनद्वारे </span>
+                <span className="text-white">शेतकरी सक्षमीकरण</span>
+              </h1>
+            )}
+
+            {/* Subtitle - Clean Paragraph */}
+            <p className="text-sm sm:text-base text-slate-100 font-normal leading-relaxed max-w-xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
               {t('landing.heroSub')}
             </p>
 
-            {/* Tech Badges */}
-            <div className="flex flex-wrap gap-2.5 pt-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-3 py-1.5 rounded-full shadow-xs">
-                <Truck className="h-3.5 w-3.5 text-emerald-700" /> {t('landing.badgeVrp')}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-100/70 border border-amber-300 px-3 py-1.5 rounded-full shadow-xs">
-                <Zap className="h-3.5 w-3.5 text-amber-700" /> {t('landing.badgeEv')}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-900 bg-sky-100/70 border border-sky-300 px-3 py-1.5 rounded-full shadow-xs">
-                <Package className="h-3.5 w-3.5 text-sky-700" /> {t('landing.badgeBus')}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-900 bg-purple-100/70 border border-purple-300 px-3 py-1.5 rounded-full shadow-xs">
-                <Bot className="h-3.5 w-3.5 text-purple-700" /> {t('landing.badgeAi')}
-              </span>
+            {/* 4 Feature Columns */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-white/15 max-w-2xl">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-emerald-400">
+                  <Truck className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-wider text-white">{t('landing.badgeVrp')}</p>
+                <p className="text-[10px] text-slate-300 font-medium leading-tight">{t('landing.featVrpSub')}</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-emerald-400">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-wider text-white">{t('landing.badgeEv')}</p>
+                <p className="text-[10px] text-slate-300 font-medium leading-tight">{t('landing.featEvSub')}</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-emerald-400">
+                  <Package className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-wider text-white">{t('landing.badgeBus')}</p>
+                <p className="text-[10px] text-slate-300 font-medium leading-tight">{t('landing.featBusSub')}</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-emerald-400">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-black uppercase tracking-wider text-white">{t('landing.badgeAi')}</p>
+                <p className="text-[10px] text-slate-300 font-medium leading-tight">{t('landing.featAiSub')}</p>
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+            {/* Action Buttons - Side by Side */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
               <Button
                 variant="primary"
+                full={false}
                 icon={ArrowRight}
                 onClick={() => onEnter('signup')}
-                className="rounded-2xl bg-forest-900 text-white hover:bg-forest-800 px-7 py-3.5 text-base font-bold shadow-lg shadow-forest-900/20 justify-center"
+                className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-forest-950 px-7 py-3 text-sm font-black uppercase tracking-wider shadow-lg shadow-emerald-950/40 transition-all hover:scale-105"
               >
                 {t('landing.ctaAccount')}
               </Button>
               <button
                 type="button"
                 onClick={() => onEnter('login')}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-slate-100/80 hover:bg-slate-200/80 px-6 py-3.5 text-base font-bold text-slate-800 transition-all shadow-xs"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/70 hover:bg-slate-900 text-white px-7 py-3 text-sm font-bold uppercase tracking-wider transition-all shadow-md backdrop-blur-md hover:scale-105"
               >
-                <Compass className="h-5 w-5 text-emerald-700" />
+                <Compass className="h-4 w-4 text-emerald-400" />
                 {t('landing.ctaDemo')}
               </button>
             </div>
-          </div>
 
-          {/* Right Visual Image - User Provided Illustration */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-3 shadow-xl overflow-hidden group">
-              <img
-                src="/images/user_farming_illustration.png"
-                alt="KrushiFlow Traditional & Modern Farming Integration"
-                className="w-full h-auto max-h-[460px] object-contain rounded-2xl bg-white p-2 transform group-hover:scale-105 transition-transform duration-500"
-              />
-              
-              {/* Floating Stat Badges on White Card */}
-              <div className="absolute top-5 left-5 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lg flex items-center gap-3 backdrop-blur-md">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  <Activity className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Net Realization</p>
-                  <p className="text-sm font-extrabold text-slate-900">35% Freight Savings</p>
-                </div>
-              </div>
-
-              <div className="absolute bottom-5 right-5 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lg flex items-center gap-3 backdrop-blur-md">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-800 border border-amber-200">
-                  <Zap className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Green Freight</p>
-                  <p className="text-sm font-extrabold text-slate-900">Solar EV Stations</p>
-                </div>
-              </div>
-            </div>
           </div>
 
         </section>
+      </div>
+
+      {/* Main Container */}
+      <main className="mx-auto max-w-7xl px-6 pb-12 sm:pb-16 lg:px-8">
 
         {/* LIVE MANDI RATES BOARD - Crisp Modern Card */}
         <section className="mt-12 sm:mt-16 rounded-3xl border border-slate-200 bg-slate-900 text-white p-6 sm:p-8 shadow-xl relative overflow-hidden">
@@ -221,7 +299,7 @@ export const LandingScreen = ({ onEnter }) => {
                 <span className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-400">
                   {t('landing.eyebrow')}
                 </span>
-                <h2 className="text-2xl font-extrabold text-white font-display">Live Agmarknet APMC Rates</h2>
+                <h2 className="text-2xl font-extrabold text-white font-display">{t('landing.boardTitle')}</h2>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -250,7 +328,7 @@ export const LandingScreen = ({ onEnter }) => {
                       <DeltaIcon className={`h-3.5 w-3.5 shrink-0 ${deltaColor}`} strokeWidth={2.5} />
                       <span className="truncate">{mandi}</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-normal">/ kg</span>
+                    <span className="text-[10px] text-slate-400 font-normal">/ {t('common.kg')}</span>
                   </div>
                 </div>
               );
@@ -265,7 +343,7 @@ export const LandingScreen = ({ onEnter }) => {
               {t('landing.pillarTitle')}
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Integrated Technology Built for Rural Supply Chains
+              {t('landing.pillarHeading')}
             </h2>
             <p className="text-slate-600 text-base">
               {t('landing.pillarSub')}
@@ -273,7 +351,7 @@ export const LandingScreen = ({ onEnter }) => {
           </div>
 
           <div className="mt-12 grid md:grid-cols-2 gap-8">
-            
+
             {/* PILLAR 1: VRP ROUTE OPTIMIZATION (Using user_tractor_silhouette.jpg) */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all group flex flex-col justify-between">
               <div>
@@ -284,7 +362,7 @@ export const LandingScreen = ({ onEnter }) => {
                     className="w-full h-52 sm:h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-white/95 text-emerald-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5">
-                    <Truck className="h-3.5 w-3.5 text-emerald-700" /> Capacitated VRP Algorithm
+                    <Truck className="h-3.5 w-3.5 text-emerald-700" /> {t('landing.badgeVrp')}
                   </div>
                 </div>
                 <h3 className="font-display text-2xl font-extrabold text-slate-900 mb-2">
@@ -295,8 +373,8 @@ export const LandingScreen = ({ onEnter }) => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                <span className="text-xs font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">Kopargaon Corridor Routing</span>
-                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">Shared Freight Pooling</span>
+                <span className="text-xs font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">{t('landing.tagCorridor')}</span>
+                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">{t('landing.tagPooling')}</span>
               </div>
             </div>
 
@@ -310,7 +388,7 @@ export const LandingScreen = ({ onEnter }) => {
                     className="w-full h-52 sm:h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-white/95 text-sky-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5">
-                    <Package className="h-3.5 w-3.5 text-sky-700" /> MSRTC Bus Transit Network
+                    <Package className="h-3.5 w-3.5 text-sky-700" /> {t('landing.badgeBus')}
                   </div>
                 </div>
                 <h3 className="font-display text-2xl font-extrabold text-slate-900 mb-2">
@@ -321,8 +399,8 @@ export const LandingScreen = ({ onEnter }) => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                <span className="text-xs font-bold text-sky-900 bg-sky-50 border border-sky-200 px-3 py-1 rounded-lg">Under 200kg Express Freight</span>
-                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">Depot-to-Depot Tracking</span>
+                <span className="text-xs font-bold text-sky-900 bg-sky-50 border border-sky-200 px-3 py-1 rounded-lg">{t('landing.tagExpress')}</span>
+                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">{t('landing.tagTracking')}</span>
               </div>
             </div>
 
@@ -336,7 +414,7 @@ export const LandingScreen = ({ onEnter }) => {
                     className="w-full h-52 sm:h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-white/95 text-amber-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5">
-                    <Zap className="h-3.5 w-3.5 text-amber-700" /> Solar Green Logistics
+                    <Zap className="h-3.5 w-3.5 text-amber-700" /> {t('landing.badgeEv')}
                   </div>
                 </div>
                 <h3 className="font-display text-2xl font-extrabold text-slate-900 mb-2">
@@ -347,8 +425,8 @@ export const LandingScreen = ({ onEnter }) => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                <span className="text-xs font-bold text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">KPG Depot Fast Chargers</span>
-                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">Zero Emission Fleet</span>
+                <span className="text-xs font-bold text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">{t('landing.tagFastCharger')}</span>
+                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">{t('landing.tagZeroEmission')}</span>
               </div>
             </div>
 
@@ -362,7 +440,7 @@ export const LandingScreen = ({ onEnter }) => {
                     className="w-full h-52 sm:h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-white/95 text-purple-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-md flex items-center gap-1.5">
-                    <Bot className="h-3.5 w-3.5 text-purple-700" /> Marathi Voice AI Copilot
+                    <Bot className="h-3.5 w-3.5 text-purple-700" /> {t('landing.badgeAi')}
                   </div>
                 </div>
                 <h3 className="font-display text-2xl font-extrabold text-slate-900 mb-2">
@@ -373,8 +451,8 @@ export const LandingScreen = ({ onEnter }) => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                <span className="text-xs font-bold text-purple-900 bg-purple-50 border border-purple-200 px-3 py-1 rounded-lg">"आज कांद्याचा काय भाव आहे?"</span>
-                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">Agmarknet RAG Search</span>
+                <span className="text-xs font-bold text-purple-900 bg-purple-50 border border-purple-200 px-3 py-1 rounded-lg">{t('landing.tagVoiceSample')}</span>
+                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">{t('landing.tagRagSearch')}</span>
               </div>
             </div>
 
@@ -388,7 +466,7 @@ export const LandingScreen = ({ onEnter }) => {
               {t('landing.rolesTitle')}
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Tailored Dashboards for Every Stakeholder
+              {t('landing.rolesHeading')}
             </h2>
             <p className="text-slate-600 text-base">
               {t('landing.rolesSub')}
@@ -410,7 +488,7 @@ export const LandingScreen = ({ onEnter }) => {
                         <Icon className="h-6 w-6 stroke-[2.25]" />
                       </div>
                       <span className="text-[11px] font-bold text-emerald-900 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full">
-                        {role.badge}
+                        {t(role.badgeKey)}
                       </span>
                     </div>
                     <h3 className="font-display text-2xl font-extrabold text-slate-900 mb-2 group-hover:text-emerald-700 transition-colors">
@@ -421,7 +499,7 @@ export const LandingScreen = ({ onEnter }) => {
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-bold text-emerald-800 group-hover:text-emerald-700">
-                    <span>Access Portal</span>
+                    <span>{t('landing.accessPortal')}</span>
                     <ArrowUpRight className="h-4 w-4 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
                 </div>
@@ -437,7 +515,7 @@ export const LandingScreen = ({ onEnter }) => {
               {t('landing.statsTitle')}
             </h2>
             <p className="text-xs text-slate-300 mt-2 font-medium">
-              Transforming agricultural trade across Kopargaon, Rahata, Shirdi & Nashik.
+              {t('landing.statsSub')}
             </p>
           </div>
 
@@ -468,7 +546,7 @@ export const LandingScreen = ({ onEnter }) => {
               {t('landing.faqTitle')}
             </span>
             <h2 className="font-display text-3xl font-extrabold text-slate-900 mt-3">
-              Got Questions? We Have Answers.
+              {t('landing.faqHeading')}
             </h2>
           </div>
 
@@ -503,30 +581,23 @@ export const LandingScreen = ({ onEnter }) => {
           </div>
         </section>
 
-        {/* CALL TO ACTION BOTTOM BANNER */}
-        <section className="mt-20 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-forest-900 p-8 sm:p-12 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight">
-              Ready to Maximize Your Harvest Income?
-            </h2>
-            <p className="text-emerald-100 text-base font-medium">
-              Join hundreds of farmers, traders, and logistics providers in Kopargaon today.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+        {/* FINAL SIGN UP CTA */}
+        <section className="mt-20 rounded-3xl bg-forest-950 text-white p-8 sm:p-12 text-center shadow-xl">
+          <h2 className="font-display text-3xl sm:text-4xl font-extrabold">
+            {t('landing.ctaAccount')}
+          </h2>
+          <p className="mt-3 text-slate-300 text-sm max-w-xl mx-auto">
+            {t('landing.heroSub')}
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               variant="primary"
+              full={false}
               onClick={() => onEnter('signup')}
               className="rounded-2xl bg-white text-emerald-950 hover:bg-slate-100 px-6 py-3.5 font-bold shadow-lg"
             >
               {t('auth.signup')}
             </Button>
-            <button
-              onClick={() => onEnter('login')}
-              className="font-bold text-white underline underline-offset-4 hover:opacity-90 text-sm px-4 py-2"
-            >
-              {t('auth.login')}
-            </button>
           </div>
         </section>
 
@@ -538,10 +609,10 @@ export const LandingScreen = ({ onEnter }) => {
           <div className="flex items-center gap-2">
             <Sprout className="h-4 w-4 text-emerald-700" />
             <span className="font-display font-bold text-slate-900 text-base">KrushiFlow</span>
-            <span className="text-slate-500">— AgriTech & Rural Logistics Ecosystem</span>
+            <span className="text-slate-500">— {t('landing.footerTagline')}</span>
           </div>
           <div className="flex items-center gap-6">
-            <span className="text-slate-500">Coverage: Kopargaon, Shirdi, Rahata, Sangamner, Nashik</span>
+            <span className="text-slate-500">{t('landing.coverage')}</span>
             <button
               onClick={() => onEnter('blackout')}
               className="text-red-600 underline font-bold hover:text-red-700"
