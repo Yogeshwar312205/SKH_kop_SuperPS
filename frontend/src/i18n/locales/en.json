@@ -76,6 +76,7 @@
       "today": "Today",
       "price": "Price",
       "transport": "Vehicle",
+      "busparcel": "Bus Parcel",
       "crop": "My Crop"
     },
     "buyer": {

@@ -9,7 +9,9 @@ const { connectDB, getIsConnected } = require('./config/db');
 const logger = require('./utils/logger');
 const authRoutes = require('./routes/authRoutes');
 const apiRoutes = require('./routes/apiRoutes');
+const apiV2Routes = require('./routes/apiV2Routes');
 const { initSockets } = require('./sockets/trackingSocket');
+const { initBusSockets } = require('./sockets/busSocket');
 const { checkAiEngineHealth } = require('./services/aiEngineService');
 
 const app = express();
@@ -26,6 +28,7 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
+app.use('/api/v2', apiV2Routes);
 
 // Microservices Health & Status Route
 app.get('/health', async (req, res) => {
@@ -46,6 +49,7 @@ const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 initSockets(io);
+initBusSockets(io);
 
 const indexer = require('./rag/ingestion/indexer');
 

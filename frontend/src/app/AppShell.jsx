@@ -17,6 +17,7 @@ import { PriceScreen } from '../features/farmer/price/PriceScreen';
  */
 const TransportScreen = lazy(() => import('../features/farmer/transport/TransportScreen').then((m) => ({ default: m.TransportScreen })));
 const CropScreen = lazy(() => import('../features/farmer/crop/CropScreen').then((m) => ({ default: m.CropScreen })));
+const BusParcelScreen = lazy(() => import('../features/busParcel/BusParcelScreen').then((m) => ({ default: m.BusParcelScreen })));
 
 /*
  * Fleet-owner and buyer screens are lazy-loaded, so a farmer who never opens
@@ -46,6 +47,8 @@ const screenFor = (tabId) => {
       return <TransportScreen />;
     case 'crop':
       return <CropScreen />;
+    case 'bus-parcel':
+      return <BusParcelScreen />;
 
     /* Every role reaches this from the top bar's identity chip. */
     case PROFILE_TAB:

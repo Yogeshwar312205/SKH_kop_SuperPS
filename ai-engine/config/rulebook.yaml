@@ -1,0 +1,279 @@
+# Cargo Eligibility Rulebook (§3.3)
+#
+# This file is the decision boundary between bus network and fleet VRP.
+# Rules are evaluated in order. Hard rules reject from bus → reroute to fleet.
+# Soft rules apply penalties that affect trip ranking.
+#
+# A depot manager can edit this file without touching code (§6.4).
+
+version: "1.0"
+description: "MSRTC bus parcel eligibility rules for Kopargaon region"
+effectiveDate: "2026-08-29"
+
+# ==============================================================================
+# HARD RULES — Any failure routes consignment to fleet VRP
+# ==============================================================================
+
+hardRules:
+  - id: SAF-01
+    description: "Flammable / hazardous goods (pesticides, agri-chemicals, fuel)"
+    basis: "Passenger safety"
+    type: "hard"
+    condition: "commodity NOT IN hazardousList"
+    hazardousList:
+      - "Pesticide"
+      - "Insecticide"
+      - "Fungicide"
+      - "Herbicide"
+      - "Fuel"
+      - "Kerosene"
+      - "Diesel"
+      - "Fertilizer (liquid)"
+      - "Ammonia"
+    action: "REJECT"
+    failureMessage: "Hazardous cargo cannot travel on passenger bus. Routed to fleet."
+
+  - id: SAF-02
+    description: "Live animals / poultry"
+    basis: "Passenger safety, MSRTC policy"
+    type: "hard"
+    condition: "commodity NOT IN animalsList"
+    animalsList:
+      - "Poultry"
+      - "Chicken"
+      - "Duck"
+      - "Livestock"
+      - "Goat"
+      - "Sheep"
+      - "Rabbit"
+    action: "REJECT"
+    failureMessage: "Live animals cannot travel on passenger bus. Routed to fleet."
+
+  - id: SAF-03
+    description: "Strong odour (dried fish, manure)"
+    basis: "Passenger comfort"
+    type: "hard"
+    condition: "commodity NOT IN strongOdourList"
+    strongOdourList:
+      - "Dried Fish"
+      - "Fish Meal"
+      - "Manure"
+      - "Organic Fertilizer"
+      - "Fermented Products"
+    action: "REJECT"
+    failureMessage: "Strong-odour cargo not suitable for passenger bus. Routed to fleet."
+
+  - id: PHY-01
+    description: "Single piece weight limit"
+    basis: "MSRTC luggage ceiling (50 kg per piece)"
+    type: "hard"
+    condition: "maxPieceWeightKg <= 50"
+    threshold: 50
+    unit: "kg"
+    action: "REJECT"
+    failureMessage: "Single piece exceeds 50 kg MSRTC limit. Routed to fleet."
+
+  - id: PHY-02
+    description: "Dimensions exceed luggage duct envelope"
+    basis: "Physical constraint"
+    type: "hard"
+    condition: "fitsInLuggageCompartment"
+    # Implementation note: check longest dimension <= 120 cm, girth <= 200 cm
+    maxLength: 120
+    maxGirth: 200
+    unit: "cm"
+    action: "REJECT"
+    failureMessage: "Dimensions exceed bus luggage compartment. Routed to fleet."
+
+  - id: PKG-01
+    description: "Wet / leaking / unsealed produce"
+    basis: "Damage to other cargo"
+    type: "hard"
+    condition: "packagingType NOT IN unsealedTypes"
+    unsealedTypes:
+      - "loose"
+      - "unwrapped"
+      - "wet"
+      - "leaking"
+    action: "REJECT"
+    failureMessage: "Unsealed/wet cargo not permitted. Use waterproof packaging or routed to fleet."
+
+  - id: CAP-01
+    description: "Trip cargo capacity"
+    basis: "Capacity constraint"
+    type: "hard"
+    condition: "weightKg <= trip.predictedSpareKg"
+    action: "REJECT"
+    failureMessage: "Trip has insufficient spare capacity. Try another trip or routed to fleet."
+
+  - id: CAP-02
+    description: "Crew duty window"
+    basis: "Operations constraint (§skh050)"
+    type: "hard"
+    condition: "tripTime WITHIN crewWindow"
+    action: "REJECT"
+    failureMessage: "Trip outside crew duty window. Try another trip or routed to fleet."
+
+  - id: TIM-01
+    description: "Deadline feasibility"
+    basis: "Service level"
+    type: "hard"
+    condition: "trip.eta <= consignment.deadlineAt"
+    action: "REJECT"
+    failureMessage: "No bus trip can meet your deadline. Routed to fleet for direct delivery."
+
+# ==============================================================================
+# SOFT RULES — Apply penalties, do not reject
+# ==============================================================================
+
+softRules:
+  - id: WX-01
+    description: "Rain probability × non-waterproof packaging"
+    basis: "Weather conditioning (§4, path W1)"
+    type: "soft"
+    condition: "rainProbPct >= 50 AND packagingType IN exposedTypes"
+    exposedTypes:
+      - "jute-sack"
+      - "plastic-sack"
+      - "loose"
+    penalty: 40
+    unit: "INR"
+    action: "WARN"
+    warningMessage: "Rain risk is moderate-to-high. Use waterproof packaging or accept ₹{penalty} penalty."
+
+  - id: WX-02
+    description: "Temperature/humidity × commodity perishability"
+    basis: "Weather conditioning (§4, path W2) — feeds existing spoilage model"
+    type: "soft"
+    condition: "tempC > 30 AND humidityPct > 70 AND commodity IN perishableList"
+    perishableList:
+      - "Tomato"
+      - "Green Chilli"
+      - "Cabbage"
+      - "Cauliflower"
+      - "Brinjal"
+      - "Okra"
+      - "Spinach"
+      - "Grapes"
+      - "Banana"
+      - "Mango"
+      - "Papaya"
+    penalty: 25
+    unit: "INR"
+    action: "WARN"
+    warningMessage: "High temp/humidity may accelerate spoilage. Consider earlier trip."
+
+  - id: WX-03
+    description: "Heavy rain × unpaved approach link"
+    basis: "Weather conditioning (§4, path W3)"
+    type: "soft"
+    condition: "rainfallMm > 10 AND stop.approachRoadClass = unpaved"
+    speedPenalty: 0.6
+    # Speed drops to 60% of baseline on unpaved roads in rain
+    action: "WARN"
+    warningMessage: "Heavy rain on unpaved approach. Expect delays."
+
+  - id: ECO-01
+    description: "Consolidation bonus — same destination, same trip"
+    basis: "Economic efficiency"
+    type: "soft"
+    condition: "existingConsignments ON trip WITH sameDestination"
+    bonus: -30
+    unit: "INR"
+    action: "APPLIED"
+    message: "Consolidation discount applied."
+
+  - id: ECO-02
+    description: "Hold-for-later bonus"
+    basis: "Economic efficiency"
+    type: "soft"
+    condition: "laterTrip.cost < currentTrip.cost AND deadline.margin > 2h"
+    bonus: -50
+    unit: "INR"
+    action: "APPLIED"
+    message: "Later trip is materially cheaper and still meets deadline."
+
+  - id: VAL-01
+    description: "Declared value above parcel-service liability limit"
+    basis: "Risk management"
+    type: "soft"
+    condition: "declaredValue > liabilityLimit"
+    liabilityLimit: 50000
+    unit: "INR"
+    penalty: 100
+    action: "WARN"
+    warningMessage: "Declared value exceeds MSRTC parcel liability (₹50,000). Consider insuring or using fleet."
+
+# ==============================================================================
+# CARGO CLASSES (§3.2) — informational, not evaluated as rules
+# ==============================================================================
+
+cargoClasses:
+  A:
+    name: "Bus-eligible agricultural"
+    description: "Packed seeds, pulses, dried grain ≤50kg sacks, jaggery, spices, dried chilli"
+    volumeFiller: false
+    seasonal: true
+    examples:
+      - "Soybean Seeds"
+      - "Wheat (packed)"
+      - "Gram"
+      - "Tur Dal"
+      - "Jaggery"
+      - "Dried Chilli"
+      - "Turmeric"
+      - "Coriander Seeds"
+
+  B:
+    name: "General parcels"
+    description: "Personal courier, documents, spare parts, medicines, e-commerce returns, Shirdi pilgrim parcels"
+    volumeFiller: true
+    seasonal: false
+    note: "This is what fills buses year-round when agri is off-season"
+    examples:
+      - "Documents"
+      - "Medicine"
+      - "Spare Parts"
+      - "E-commerce Returns"
+      - "Personal Effects"
+      - "Pilgrim Parcels"
+
+  C:
+    name: "Institutional"
+    description: "India Post / govt mail, cooperative documents, bank pouches"
+    volumeFiller: false
+    seasonal: false
+    contractable: true
+    examples:
+      - "India Post"
+      - "Bank Documents"
+      - "Cooperative Records"
+      - "Government Mail"
+
+  D:
+    name: "Not bus-eligible"
+    description: "Bulk onion lots, wet/unpackaged produce, pesticides, livestock, oversized, >50kg pieces"
+    busEligible: false
+    note: "The rejection path is a feature. These route to existing KrishiFlow fleet VRP."
+    examples:
+      - "Bulk Onion (loose)"
+      - "Wet Tomato"
+      - "Pesticides"
+      - "Livestock"
+      - "Heavy Machinery"
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+meta:
+  source: "MSRTC operational guidelines + Maharashtra APMC regulations"
+  maintainer: "Fleet Operations, Kopargaon ST Depot"
+  lastUpdated: "2026-08-29"
+  editableByRole: "depot-manager"
+  notes: |
+    This rulebook is loaded by the AI engine (/rules/evaluate) and is exposed
+    read-only to the admin UI (GET /api/v2/rules/book). A depot manager can
+    edit this file and the changes take effect on the next request — no code
+    deployment needed. That demonstrable editability is the deployment-realism
+    answer (§6.4).

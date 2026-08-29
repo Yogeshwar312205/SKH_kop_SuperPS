@@ -1,4 +1,4 @@
-import { Sun, IndianRupee, Truck, Sprout, ClipboardList, Route, Store, PackageCheck, User, Shuffle, Boxes } from 'lucide-react';
+import { Sun, IndianRupee, Truck, Sprout, ClipboardList, Route, Store, PackageCheck, User, Shuffle, Boxes, Package } from 'lucide-react';
 
 /**
  * Every destination in the app, in one table.
@@ -45,6 +45,7 @@ const FARMER_TABS = [
   { id: 'price',     labelKey: 'nav.farmer.price',     icon: IndianRupee },
   { id: 'transport', labelKey: 'nav.farmer.transport', icon: Truck },
   { id: 'crop',      labelKey: 'nav.farmer.crop',      icon: Sprout },
+  { id: 'bus-parcel', labelKey: 'nav.farmer.busparcel', icon: Package },
 ];
 
 const LOGISTICS_TABS = [
