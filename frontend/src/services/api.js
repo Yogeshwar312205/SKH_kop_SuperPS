@@ -607,3 +607,34 @@ export const takeSnapshot = async () => {
     throw toApiError(err, 'Could not take snapshot');
   }
 };
+
+/* ----------------------------------------------------- Trust & Integrity System */
+
+export const fetchProvenanceInfo = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/trust/provenance`);
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not fetch provenance info');
+  }
+};
+
+export const submitIntegrityReport = async (reportData) => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/trust/report`, reportData);
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not submit report');
+  }
+};
+
+export const fetchContentFlags = async (subjects) => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/trust/flags`, { params: { subjects } });
+    return res.data;
+  } catch (err) {
+    console.warn('Failed to fetch content flags:', err.message);
+    return { success: false, flags: [] };
+  }
+};
+

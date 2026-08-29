@@ -1,6 +1,10 @@
+const mongoose = require('mongoose');
 const IntegrityTicket = require('../models/IntegrityTicket');
 const ContentFlag = require('../models/ContentFlag');
+const BuyerPosting = require('../models/BuyerPosting');
 const { getProvenance } = require('../services/provenanceService');
+const { verifyAdminCredentials, generateAdminToken } = require('../middlewares/adminAuth');
+const { broadcast } = require('../sockets/bus');
 const logger = require('../utils/logger');
 
 /**
@@ -98,8 +102,8 @@ const reportConcern = async (req, res) => {
 
     logger.info(`[Trust] New user report: ${ticket.ticketId} - ${category}`);
 
-    // TODO: Broadcast socket event in M2
-    // broadcast('trust:ticket_new', { ticketId: ticket.ticketId, category });
+    // Broadcast live ticket creation
+    broadcast('trust:ticket_new', { ticketId: ticket.ticketId, category: ticket.category });
 
     return res.status(201).json({
       success: true,
@@ -255,10 +259,300 @@ const captureSourceOfRecord = async (subject) => {
   return record;
 };
 
+// ============================================================================
+// Admin Routes (Protected by adminGuard)
+// ============================================================================
+
+/**
+ * POST /api/trust/admin/login
+ * Admin authentication
+ * Body: { username, password }
+ */
+const adminLogin = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username and password required',
+      });
+    }
+
+    // Verify credentials
+    if (!verifyAdminCredentials(username, password)) {
+      logger.warn(`[TrustAdmin] Failed login attempt for: ${username}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Generate token
+    const token = generateAdminToken(username);
+
+    logger.info(`[TrustAdmin] Admin logged in: ${username}`);
+
+    return res.json({
+      success: true,
+      token,
+      username,
+    });
+
+  } catch (error) {
+    logger.error(`[TrustAdmin] Login failed: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: 'Login failed',
+    });
+  }
+};
+
+/**
+ * GET /api/trust/admin/tickets?status=open
+ * Get moderation queue
+ */
+const getAdminTickets = async (req, res) => {
+  try {
+    const { status, source, category } = req.query;
+
+    // Build filter
+    const filter = {};
+    if (status) filter.status = status;
+    if (source) filter.source = source;
+    if (category) filter.category = category;
+
+    // Fetch tickets, newest first
+    const tickets = await IntegrityTicket.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(100);
+
+    return res.json({
+      success: true,
+      tickets,
+      count: tickets.length,
+    });
+
+  } catch (error) {
+    logger.error(`[TrustAdmin] Tickets fetch failed: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch tickets',
+    });
+  }
+};
+
+/**
+ * POST /api/trust/admin/tickets/:id/triage
+ * Update ticket status and add timeline entry
+ * Body: { status: 'triaging' | 'resolved' | 'dismissed', note }
+ */
+const triageTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, note } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status required',
+      });
+    }
+
+    const validStatuses = ['open', 'triaging', 'resolved', 'dismissed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status',
+      });
+    }
+
+    let ticket;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      ticket = await IntegrityTicket.findById(id);
+    }
+    if (!ticket) {
+      ticket = await IntegrityTicket.findOne({ ticketId: id });
+    }
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ticket not found',
+      });
+    }
+
+    const adminUser = req.admin?.username || 'admin';
+
+    if (!Array.isArray(ticket.timeline)) {
+      ticket.timeline = [];
+    }
+
+    if (!ticket.subject) {
+      ticket.subject = { type: 'price', label: 'Reported Item' };
+    } else if (!ticket.subject.type) {
+      ticket.subject.type = 'price';
+    }
+
+    // Update status and timeline
+    ticket.status = status;
+    ticket.timeline.push({
+      at: new Date(),
+      actor: adminUser,
+      action: 'status_changed',
+      note: note || `Status changed to ${status}`,
+    });
+
+    await ticket.save();
+
+    logger.info(`[TrustAdmin] Ticket ${ticket.ticketId} triaged: ${status} by ${adminUser}`);
+
+    try {
+      broadcast('trust:ticket_update', { ticketId: ticket.ticketId, status });
+    } catch (e) {
+      logger.warn(`[TrustAdmin] Socket broadcast warning: ${e.message}`);
+    }
+
+    return res.json({
+      success: true,
+      ticket,
+    });
+
+  } catch (error) {
+    logger.error(`[TrustAdmin] Triage failed: ${error.message}`, error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to triage ticket',
+    });
+  }
+};
+
+/**
+ * POST /api/trust/admin/tickets/:id/verdict
+ * Set moderation verdict on a ticket
+ * Body: { verdict: 'verified' | 'disputed' | 'misleading' | 'removed', note }
+ */
+const setTicketVerdict = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { verdict, note } = req.body;
+
+    if (!verdict || !note) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verdict and note required',
+      });
+    }
+
+    const validVerdicts = ['verified', 'disputed', 'misleading', 'removed'];
+    if (!validVerdicts.includes(verdict)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verdict',
+      });
+    }
+
+    let ticket;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      ticket = await IntegrityTicket.findById(id);
+    }
+    if (!ticket) {
+      ticket = await IntegrityTicket.findOne({ ticketId: id });
+    }
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ticket not found',
+      });
+    }
+
+    const adminUser = req.admin?.username || 'admin';
+
+    if (!Array.isArray(ticket.timeline)) {
+      ticket.timeline = [];
+    }
+
+    if (!ticket.subject) {
+      ticket.subject = { type: 'price', label: 'Reported Item' };
+    } else if (!ticket.subject.type) {
+      ticket.subject.type = 'price';
+    }
+
+    // Set verdict on ticket
+    ticket.verdict = verdict;
+    ticket.verdictNote = note;
+    ticket.verdictBy = adminUser;
+    ticket.verdictAt = new Date();
+    ticket.status = 'resolved';
+
+    // Add timeline entry
+    ticket.timeline.push({
+      at: new Date(),
+      actor: adminUser,
+      action: 'verdict_set',
+      note: `Verdict: ${verdict}`,
+    });
+
+    await ticket.save();
+
+    // Upsert ContentFlag (public verdict)
+    const contentFlag = await ContentFlag.findOneAndUpdate(
+      {
+        subjectType: ticket.subject?.type || 'price',
+        subjectId: ticket.subject?.id || ticket.ticketId, // Fallback to ticketId if no specific ID
+      },
+      {
+        verdict,
+        note,
+        by: adminUser,
+        at: new Date(),
+        ticketId: ticket.ticketId,
+      },
+      { upsert: true, new: true }
+    );
+
+    logger.info(`[TrustAdmin] Verdict set on ${ticket.ticketId}: ${verdict} by ${adminUser}`);
+
+    try {
+      broadcast('trust:verdict', { 
+        ticketId: ticket.ticketId, 
+        verdict, 
+        subjectType: ticket.subject?.type || 'price',
+        subjectId: ticket.subject?.id || ticket.ticketId,
+        note,
+        by: adminUser,
+        at: ticket.verdictAt,
+      });
+    } catch (e) {
+      logger.warn(`[TrustAdmin] Socket broadcast warning: ${e.message}`);
+    }
+
+    return res.json({
+      success: true,
+      ticket,
+      message: 'Verdict published',
+    });
+
+  } catch (error) {
+    logger.error(`[TrustAdmin] Verdict failed: ${error.message}`, error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to set verdict',
+    });
+  }
+};
+
 module.exports = {
   // Public routes
   getProvenanceInfo,
   reportConcern,
   getContentFlags,
   getTicketStatus,
+  
+  // Admin routes
+  adminLogin,
+  getAdminTickets,
+  triageTicket,
+  setTicketVerdict,
 };

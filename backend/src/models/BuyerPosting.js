@@ -73,6 +73,15 @@ const BuyerPostingSchema = new mongoose.Schema({
     default: false,
     index: true,
   },
+  // Data Integrity & Trust System: assessed signals at creation
+  trustSignals: {
+    score: { type: Number, default: 0 },
+    signals: [{
+      code: String,
+      severity: String,
+      detail: String,
+    }],
+  },
 }, { timestamps: true });
 
 // Compound index for efficient queries by crop and mandi

@@ -4,8 +4,13 @@ const {
   reportConcern,
   getContentFlags,
   getTicketStatus,
+  adminLogin,
+  getAdminTickets,
+  triageTicket,
+  setTicketVerdict,
 } = require('../controllers/trustController');
 const { apiLimiter } = require('../middlewares/rateLimiter');
+const { adminGuard } = require('../middlewares/adminAuth');
 
 const router = express.Router();
 
@@ -13,8 +18,8 @@ const router = express.Router();
  * Trust Routes - Data Integrity & Misinformation Response
  * 
  * Base path: /api/trust
- * All public routes are rate-limited to prevent abuse
- * Admin routes will be added in M2
+ * Public routes are rate-limited to prevent abuse
+ * Admin routes are protected by adminGuard
  */
 
 // ============================================================================
@@ -45,5 +50,33 @@ router.get('/flags', apiLimiter, getContentFlags);
  * Get public status of a ticket
  */
 router.get('/ticket/:ticketId', apiLimiter, getTicketStatus);
+
+// ============================================================================
+// Admin Routes (Protected by adminGuard)
+// ============================================================================
+
+/**
+ * POST /api/trust/admin/login
+ * Admin authentication
+ */
+router.post('/admin/login', apiLimiter, adminLogin);
+
+/**
+ * GET /api/trust/admin/tickets
+ * Get moderation queue
+ */
+router.get('/admin/tickets', adminGuard, getAdminTickets);
+
+/**
+ * POST /api/trust/admin/tickets/:id/triage
+ * Update ticket status
+ */
+router.post('/admin/tickets/:id/triage', adminGuard, triageTicket);
+
+/**
+ * POST /api/trust/admin/tickets/:id/verdict
+ * Set moderation verdict on ticket
+ */
+router.post('/admin/tickets/:id/verdict', adminGuard, setTicketVerdict);
 
 module.exports = router;

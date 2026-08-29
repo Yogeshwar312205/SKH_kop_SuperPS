@@ -1,4 +1,8 @@
 const BuyerPosting = require('../models/BuyerPosting');
+const IntegrityTicket = require('../models/IntegrityTicket');
+const User = require('../models/User');
+const { assessBuyerPosting } = require('../services/trustSignals');
+const { broadcast } = require('../sockets/bus');
 const logger = require('../utils/logger');
 
 /**
@@ -37,7 +41,69 @@ const createPosting = async (req, res) => {
       status: 'Active Procurement'
     });
 
-    await posting.save();
+    // Assess posting signals & risk heuristics (Challenge 2: Trust & Integrity)
+    try {
+      const buyerUser = await User.findById(req.user._id).select('createdAt');
+      const postingCount24h = await BuyerPosting.countDocuments({
+        buyer: req.user._id,
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      });
+
+      // Default baseline modal rate benchmark (₹30/kg fallback if feed unparsed)
+      const agmarknetModalPerKg = 30;
+
+      const trustAssessment = await assessBuyerPosting(
+        { cropName: cropType, mandiName, pricePerKg: Number(offeredPricePerKg) },
+        { agmarknetModalPerKg, buyerUser, postingCount24h }
+      );
+
+      posting.trustSignals = trustAssessment;
+
+      await posting.save();
+
+      // If heuristic threshold exceeded, auto-open an Integrity Ticket for human review
+      // IMPORTANT: Content is NEVER auto-removed or blocked. It is queued for human moderation.
+      if (trustAssessment.autoTicket) {
+        const ticket = await IntegrityTicket.create({
+          status: 'open',
+          category: 'scam_posting',
+          source: 'auto_signal',
+          subject: {
+            type: 'posting',
+            id: String(posting._id),
+            label: `${cropType} @ ${mandiName}`,
+            displayedValue: `₹${offeredPricePerKg}/kg`,
+          },
+          sourceOfRecord: {
+            capturedAt: new Date().toISOString(),
+            subjectType: 'posting',
+            subjectId: String(posting._id),
+            snapshot: {
+              cropType,
+              grade,
+              offeredPricePerKg: Number(offeredPricePerKg),
+              mandiName,
+              buyerId: String(req.user._id),
+              buyerName: req.user.name || 'APMC Buyer',
+            },
+          },
+          reason: `Automated anomaly detection: high risk score (${trustAssessment.score}) triggered by creation heuristics`,
+          signals: trustAssessment.signals,
+          timeline: [{
+            at: new Date(),
+            actor: 'system',
+            action: 'created',
+            note: `Auto-ticket created from heuristic flags (score ${trustAssessment.score})`,
+          }],
+        });
+
+        logger.info(`[Trust] Auto-ticket created for posting ${posting._id}: ${ticket.ticketId}`);
+        broadcast('trust:ticket_new', { ticketId: ticket.ticketId, category: ticket.category });
+      }
+    } catch (trustErr) {
+      logger.warn(`[Trust] Failed to assess trust signals on posting: ${trustErr.message}`);
+      await posting.save();
+    }
     
     // Populate buyer details for response
     await posting.populate('buyer', 'name phone company');

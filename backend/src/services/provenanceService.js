@@ -163,12 +163,62 @@ const getProvenance = async () => {
   } catch (error) {
     logger.error(`[Provenance] Failed to assemble provenance: ${error.message}`);
     
-    // Return minimal fallback
+    // Return robust fallback with all expected fields
     return {
-      error: 'Unable to fetch complete provenance information',
+      error: 'Unable to fetch live provenance information',
       governmentFeed: {
         name: 'Agmarknet APMC Price Data',
-        verifyUrl: `https://data.gov.in/resource/${RESOURCE_ID}`,
+        authority: 'Ministry of Agriculture & Farmers Welfare, Government of India',
+        resourceId: RESOURCE_ID || '35985678-0d79-46b4-9ed6-6f13308a1d24',
+        refreshCadence: 'Every 6 hours',
+        method: 'Government APMC API',
+        isLive: false,
+        whatWeShow: 'Government-published modal price per kg',
+        whatWeDontDo: 'We do not compute or modify the government price',
+        verifyUrl: `https://data.gov.in/resource/${RESOURCE_ID || '35985678-0d79-46b4-9ed6-6f13308a1d24'}`,
+      },
+      sellHoldAdvice: {
+        name: 'Sell or Hold Recommendation',
+        method: 'Rule-based decision system',
+        inputs: [
+          'Current Agmarknet modal price',
+          'Price momentum (14-day trailing average)',
+          'OpenWeather current conditions',
+        ],
+        whatWeWithhold: [
+          'Exact weights and thresholds',
+          'Scoring algorithm details',
+        ],
+        disclaimer: 'This is advice, not a guarantee. Market conditions can change rapidly.',
+      },
+      priceForecast: {
+        name: '7-Period Price Forecast',
+        algorithm: 'XGBoost',
+        status: 'offline',
+        health: 'offline',
+        trainedOn: 'Historical APMC data',
+        geography: 'Maharashtra',
+        horizon: '7 periods ahead',
+        whatWeWithhold: ['Model parameters and hyperweights'],
+        safetyMeasure: 'Forecast withheld when price exceeds bounds',
+      },
+      spoilageModel: {
+        name: 'Spoilage Risk Estimate',
+        method: 'Q10 exponential decay model',
+        inputs: ['Crop type', 'Hours since harvest', 'Temperature (°C)'],
+        whatWeWithhold: ['Q10 temperature coefficients'],
+        disclaimer: 'Estimate based on standard storage conditions.',
+      },
+      governmentSchemes: {
+        name: 'Government Scheme References',
+        approach: 'Outbound links only',
+        whatWeDo: 'Link to official government pages',
+        whatWeDontDo: 'We never restate scheme terms',
+        schemes: [
+          { name: 'PM-KISAN', url: 'https://pmkisan.gov.in/', lastChecked: '2026-08-15' },
+          { name: 'PM Fasal Bima Yojana', url: 'https://pmfby.gov.in/', lastChecked: '2026-08-15' },
+        ],
+        disclaimer: 'Always verify scheme details directly on official government websites',
       },
     };
   }

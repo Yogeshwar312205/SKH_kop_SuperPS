@@ -13,6 +13,7 @@ import { BOARD_CROPS } from './utils/constants';
 const AuthScreen = lazy(() => import('./features/auth/AuthScreen').then((m) => ({ default: m.AuthScreen })));
 const LandingScreen = lazy(() => import('./features/auth/LandingScreen').then((m) => ({ default: m.LandingScreen })));
 const BlackoutConsoleScreen = lazy(() => import('./features/system/BlackoutConsoleScreen').then((m) => ({ default: m.BlackoutConsoleScreen })));
+const TrustScreen = lazy(() => import('./features/trust/TrustScreen').then((m) => ({ default: m.TrustScreen })));
 
 /*
  * The unauthenticated pair: a hero screen that sells the product in five
@@ -20,16 +21,20 @@ const BlackoutConsoleScreen = lazy(() => import('./features/system/BlackoutConso
  * ('login' | 'signup') so the landing page's two buttons land straight on the
  * right panel instead of always opening login.
  * 
- * Also includes 'blackout' for the Resilience Console (pre-auth accessible).
+ * Also includes 'blackout' for the Resilience Console (pre-auth accessible)
+ * and 'trust' for the Data Integrity portal (Challenge 2, pre-auth).
  */
 const Gate = () => {
-  const [stage, setStage] = useState('landing'); // 'landing' | 'login' | 'signup' | 'blackout'
+  const [stage, setStage] = useState('landing'); // 'landing' | 'login' | 'signup' | 'blackout' | 'trust'
 
   if (stage === 'landing') {
     return <LandingScreen onEnter={setStage} />;
   }
   if (stage === 'blackout') {
     return <BlackoutConsoleScreen onExit={() => setStage('landing')} />;
+  }
+  if (stage === 'trust') {
+    return <TrustScreen onExit={() => setStage('landing')} />;
   }
   return <AuthScreen initialMode={stage} onBack={() => setStage('landing')} />;
 };

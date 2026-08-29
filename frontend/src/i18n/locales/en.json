@@ -411,7 +411,8 @@
     "statsSub": "Transforming agricultural trade across Kopargaon, Rahata, Shirdi & Nashik.",
     "faqHeading": "Got Questions? We Have Answers.",
     "footerTagline": "AgriTech & Rural Logistics Ecosystem",
-    "coverage": "Coverage: Kopargaon, Shirdi, Rahata, Sangamner, Nashik"
+    "coverage": "Coverage: Kopargaon, Shirdi, Rahata, Sangamner, Nashik",
+    "trustPortal": "Trust Portal"
   },
   "auth": {
     "login": "Log in",
@@ -711,5 +712,100 @@
     "shareDenied": "Location permission was refused. Turn it on in your phone settings.",
     "shareFailed": "Could not get your location.",
     "shareUnsupported": "This phone cannot share its location."
+  },
+  "trust": {
+    "title": "Data Authenticity Portal",
+    "subtitle": "How we know what we show is true",
+    "intro": {
+      "title": "KrishiFlow is a reference point, not an arbiter",
+      "description": "We don't stamp claims 'true' or 'false' — a wrong automated verdict on your screen is worse than none. Instead, every figure names its source, its fetch time, and what we deliberately withhold. Anyone can dispute what they see, and moderation verdicts are human and public."
+    },
+    "provenance": {
+      "title": "Where Our Data Comes From",
+      "loadError": "Could not load provenance information"
+    },
+    "verdict": {
+      "verified": "Verified Accurate",
+      "disputed": "Disputed Claim",
+      "misleading": "Potentially Misleading",
+      "removed": "Removed by Moderator"
+    },
+    "source": {
+      "govFeed": {
+        "title": "Live Government Price Feed",
+        "live": "Live",
+        "offline": "Offline",
+        "authority": "Authority",
+        "resourceId": "Resource ID",
+        "refresh": "Refresh Cadence",
+        "method": "Method",
+        "whatWeShow": "What we show",
+        "whatWeDontDo": "What we don't do"
+      },
+      "advice": {
+        "title": "Sell/Hold Advice",
+        "badge": "Rule-Based",
+        "method": "Method",
+        "inputs": "Inputs",
+        "whatWeWithhold": "What we deliberately withhold"
+      },
+      "forecast": {
+        "title": "7-Period Price Forecast",
+        "health": "Health",
+        "algorithm": "Algorithm",
+        "trainedOn": "Trained On",
+        "geography": "Geography",
+        "horizon": "Horizon",
+        "whatWeWithhold": "What we deliberately withhold",
+        "safetyTitle": "Safety Measure"
+      },
+      "spoilage": {
+        "title": "Spoilage Risk Estimate",
+        "badge": "Q10 Model",
+        "method": "Method",
+        "inputs": "Inputs",
+        "whatWeWithhold": "What we deliberately withhold"
+      },
+      "schemes": {
+        "title": "Government Schemes",
+        "badge": "Reference Only",
+        "approach": "Our approach",
+        "whatWeDo": "What we do",
+        "whatWeDontDo": "What we don't do",
+        "lastChecked": "Last checked"
+      },
+      "verifyAtSource": "Verify at source"
+    },
+    "report": {
+      "title": "Report Something That Looks Wrong",
+      "category": "What kind of concern is this?",
+      "categories": {
+        "priceDispute": "Government price seems wrong",
+        "scamPosting": "Buyer posting looks fake",
+        "schemeRumor": "Scheme information is false",
+        "treatmentClaim": "Crop treatment advice is dangerous",
+        "other": "Something else"
+      },
+      "whatDidYouSee": "What did you see?",
+      "whatDidYouSeePlaceholder": "e.g., Onion price at Kopargaon APMC",
+      "whyWrong": "Why does it look wrong?",
+      "whyWrongPlaceholder": "Describe what seems off or incorrect...",
+      "yourName": "Your name",
+      "yourContact": "Your contact (phone or email)",
+      "yourContactPlaceholder": "For follow-up if needed",
+      "optional": "optional",
+      "submit": "Submit Report",
+      "submitting": "Submitting...",
+      "submitted": "Report Submitted",
+      "ticketId": "Ticket ID",
+      "reviewMessage": "An admin will review your report. You can track its status with this ticket ID.",
+      "submitAnother": "Submit Another Report",
+      "reasonRequired": "Please explain why it looks wrong",
+      "submitError": "Could not submit report. Please try again."
+    },
+    "examples": {
+      "title": "Live Examples",
+      "placeholder": "Worked examples will appear here after M3 implementation"
+    }
   }
 }

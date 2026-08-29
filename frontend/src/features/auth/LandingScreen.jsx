@@ -614,6 +614,13 @@ export const LandingScreen = ({ onEnter }) => {
           <div className="flex items-center gap-6">
             <span className="text-slate-500">{t('landing.coverage')}</span>
             <button
+              onClick={() => onEnter('trust')}
+              className="text-blue-600 underline font-bold hover:text-blue-700"
+              title="Data Integrity & Transparency"
+            >
+              🛡️ {t('landing.trustPortal')}
+            </button>
+            <button
               onClick={() => onEnter('blackout')}
               className="text-red-600 underline font-bold hover:text-red-700"
               title="Database Resilience Demo"

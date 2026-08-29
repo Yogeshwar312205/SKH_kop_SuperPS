@@ -38,6 +38,7 @@ const IntegrityTicketSchema = new mongoose.Schema({
   subject: {
     type: {
       type: String, // 'price', 'posting', 'advice', 'forecast', 'scheme'
+      default: 'price',
       required: true,
     },
     id: String, // Entity ID if applicable
