@@ -14,6 +14,7 @@ const systemRoutes = require('./routes/systemRoutes'); // Resilience system
 const apiRoutes = require('./routes/apiRoutes');
 const apiV2Routes = require('./routes/apiV2Routes');
 const droneRoutes = require('./routes/droneRoutes'); // Drone logistics
+const trustRoutes = require('./routes/trustRoutes'); // Data integrity
 const { initSockets } = require('./sockets/trackingSocket');
 const { initBusSockets } = require('./sockets/busSocket');
 const { initDroneSockets } = require('./sockets/droneSocket'); // Drone telemetry
@@ -42,6 +43,7 @@ snapshot.initialize().catch(err => {
 
 // Routes
 app.use('/api/system', systemRoutes); // Resilience system (unauthenticated)
+app.use('/api/trust', trustRoutes); // Data integrity (unauthenticated base)
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/api/v2', apiV2Routes);
