@@ -79,17 +79,55 @@ const getHealth = async (req, res) => {
         expectedCounts[item._id] = item.count;
       });
 
-      // Compare
+      // Compare and detect corruption
       for (const entityType of ['User', 'Vehicle', 'PickupRequest', 'BuyerPosting']) {
         const inDb = counts[entityType] || 0;
         const expected = expectedCounts[entityType] || 0;
         const missing = Math.max(0, expected - inDb);
 
+        // Detect corruption patterns
+        let corrupt = 0;
+        if (entityType === 'Vehicle') {
+          corrupt = await Vehicle.countDocuments({
+            drill: true,
+            $or: [
+              { capacityKg: { $lt: 0 } },
+              { status: 'CORRUPTED' },
+              { vehicleNo: { $regex: '^CORRUPTED-' } }
+            ]
+          });
+        } else if (entityType === 'PickupRequest') {
+          corrupt = await PickupRequest.countDocuments({
+            drill: true,
+            $or: [
+              { quantityKg: { $lt: 0 } },
+              { status: 'CORRUPTED' },
+              { cropType: { $regex: '^CORRUPTED-' } }
+            ]
+          });
+        } else if (entityType === 'User') {
+          corrupt = await User.countDocuments({
+            drill: true,
+            $or: [
+              { email: { $regex: '^corrupted-.*@invalid\\.local$' } },
+              { phone: { $regex: '^000000' } }
+            ]
+          });
+        } else if (entityType === 'BuyerPosting') {
+          corrupt = await BuyerPosting.countDocuments({
+            drill: true,
+            $or: [
+              { pricePerKg: { $lt: 0 } },
+              { quantityKg: { $lt: 0 } }
+            ]
+          });
+        }
+
         scan.byType[entityType] = {
           inDb,
           expected,
           missing,
-          corrupt: 0 // TODO: Check for validation failures
+          corrupt
         };
 
         if (missing > 0) {
@@ -99,6 +137,15 @@ const getHealth = async (req, res) => {
             kind: 'missing'
           });
           scan.recoverable += missing;
+        }
+
+        if (corrupt > 0) {
+          scan.affected.push({
+            entityType,
+            count: corrupt,
+            kind: 'corrupted'
+          });
+          scan.recoverable += corrupt;
         }
       }
     }
@@ -410,20 +457,54 @@ const simulateBlackout = async (req, res) => {
       results.deleted++;
     }
 
-    // Corrupt 40%
+    // Corrupt 40% (bypass validation by using Model.collection.updateOne)
     for (let i = deleteCount; i < shuffled.length; i++) {
       const doc = shuffled[i];
+      const corruptionId = Date.now() + i; // Unique corruption marker
 
       if (doc.type === 'Vehicle') {
-        await Vehicle.updateOne({ _id: doc.id }, {
-          capacityKg: NaN, // Invalid number
-          'location.coordinates': null // Invalid coordinates
-        });
+        // Use raw collection to bypass geospatial validation
+        await Vehicle.collection.updateOne(
+          { _id: doc.id },
+          {
+            $set: {
+              capacityKg: -9999, // Invalid negative capacity
+              status: 'CORRUPTED', // Invalid status
+              vehicleNo: `CORRUPTED-${corruptionId}` // Invalid vehicle number (unique)
+            }
+          }
+        );
         results.corrupted++;
       } else if (doc.type === 'PickupRequest') {
-        await PickupRequest.updateOne({ _id: doc.id }, {
-          'origin.coordinates': [999, 999], // Out of range
-          quantityKg: -100 // Invalid quantity
+        // Use raw collection to bypass geospatial validation
+        await PickupRequest.collection.updateOne(
+          { _id: doc.id },
+          {
+            $set: {
+              quantityKg: -9999, // Invalid negative quantity
+              status: 'CORRUPTED', // Invalid status
+              cropType: `CORRUPTED-${corruptionId}` // Invalid crop type (unique)
+            }
+          }
+        );
+        results.corrupted++;
+      } else if (doc.type === 'User') {
+        await User.collection.updateOne(
+          { _id: doc.id },
+          {
+            $set: {
+              email: `corrupted-${corruptionId}@invalid.local`, // Invalid email (unique)
+              phone: `000000${String(corruptionId).slice(-4)}` // Invalid phone (unique)
+            }
+          }
+        );
+        results.corrupted++;
+      } else if (doc.type === 'BuyerPosting') {
+        await BuyerPosting.updateOne({ _id: doc.id }, {
+          $set: {
+            pricePerKg: -9999, // Invalid negative price
+            quantityKg: -9999 // Invalid negative quantity
+          }
         });
         results.corrupted++;
       }
