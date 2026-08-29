@@ -7,7 +7,10 @@ require('dotenv').config();
 
 const { connectDB, getIsConnected } = require('./config/db');
 const logger = require('./utils/logger');
+const journal = require('./services/journal'); // Resilience system
+const snapshot = require('./services/snapshot'); // Resilience system
 const authRoutes = require('./routes/authRoutes');
+const systemRoutes = require('./routes/systemRoutes'); // Resilience system
 const apiRoutes = require('./routes/apiRoutes');
 const apiV2Routes = require('./routes/apiV2Routes');
 const { initSockets } = require('./sockets/trackingSocket');
@@ -25,7 +28,18 @@ app.use(express.json());
 // Connect Database
 connectDB();
 
+// Initialize Resilience System (Event Journal)
+journal.initialize().catch(err => {
+  logger.error(`Journal initialization failed: ${err.message}`);
+});
+
+// Initialize Snapshot Service
+snapshot.initialize().catch(err => {
+  logger.error(`Snapshot initialization failed: ${err.message}`);
+});
+
 // Routes
+app.use('/api/system', systemRoutes); // Resilience system (unauthenticated)
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/api/v2', apiV2Routes);

@@ -78,6 +78,12 @@ const VehicleSchema = new mongoose.Schema({
     },
   },
   locationUpdatedAt: { type: Date, default: null },
+  // Resilience system: marks test data for The Blackout drill
+  drill: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 }, { timestamps: true });
 
 VehicleSchema.index({ location: '2dsphere' });

@@ -67,6 +67,12 @@ const BuyerPostingSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+  // Resilience system: marks test data for The Blackout drill
+  drill: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 }, { timestamps: true });
 
 // Compound index for efficient queries by crop and mandi

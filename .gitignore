@@ -63,3 +63,7 @@ desktop.ini
 .cache/
 .temp/
 .tmp/
+
+# Resilience System Runtime Data
+backend/data/
+!backend/data/.gitkeep

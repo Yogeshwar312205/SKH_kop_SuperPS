@@ -67,6 +67,12 @@ const UserSchema = new mongoose.Schema({
     type: [Number], // [longitude, latitude]
     default: undefined,
   },
+  // Resilience system: marks test data for The Blackout drill
+  drill: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 }, { timestamps: true });
 
 // Hash password before save

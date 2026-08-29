@@ -543,6 +543,13 @@ export const LandingScreen = ({ onEnter }) => {
           <div className="flex items-center gap-6">
             <span className="text-slate-500">Coverage: Kopargaon, Shirdi, Rahata, Sangamner, Nashik</span>
             <button
+              onClick={() => onEnter('blackout')}
+              className="text-red-600 underline font-bold hover:text-red-700"
+              title="Database Resilience Demo"
+            >
+              🔥 Resilience Console
+            </button>
+            <button
               onClick={() => onEnter('login')}
               className="text-emerald-700 underline font-bold"
             >

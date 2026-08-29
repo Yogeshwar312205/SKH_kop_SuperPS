@@ -1,6 +1,7 @@
 const Vehicle = require('../models/Vehicle');
 const logger = require('../utils/logger');
 const { broadcast } = require('../sockets/bus');
+const journal = require('../services/journal');
 
 /**
  * A fleet owner's own vehicles. Every query is scoped to `req.user._id`, so one
@@ -82,6 +83,15 @@ const addVehicle = async (req, res) => {
       }],
       location: { type: 'Point', coordinates: coords },
       locationUpdatedAt: new Date(),
+    });
+
+    // Journal event (resilience system)
+    await journal.record({
+      entityType: 'Vehicle',
+      entityId: String(vehicle._id),
+      eventType: 'CREATE',
+      payload: vehicle.toObject(),
+      actorId: String(req.user._id)
     });
 
     return res.status(201).json({ success: true, vehicle: publicVehicle(vehicle) });

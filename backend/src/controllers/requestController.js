@@ -1,6 +1,7 @@
 const PickupRequest = require('../models/PickupRequest');
 const Vehicle = require('../models/Vehicle');
 const logger = require('../utils/logger');
+const journal = require('../services/journal');
 
 /**
  * Farmer pickup requests — the demand side of the dispatch problem.
@@ -79,6 +80,15 @@ const createRequest = async (req, res) => {
       window: window || {},
       status: 'pending',
       timeline: [{ status: 'pending', note: 'Request raised' }],
+    });
+
+    // Journal event (resilience system)
+    await journal.record({
+      entityType: 'PickupRequest',
+      entityId: String(doc._id),
+      eventType: 'CREATE',
+      payload: doc.toObject(),
+      actorId: String(req.user._id)
     });
 
     return res.status(201).json({ success: true, request: publicRequest(doc) });
@@ -181,6 +191,30 @@ const assignRequest = async (req, res) => {
     }
     if (vehicle.status === 'Idle') vehicle.status = 'Loading';
     await vehicle.save();
+
+    // Journal events (resilience system)
+    await journal.record({
+      entityType: 'PickupRequest',
+      entityId: String(request._id),
+      eventType: 'ASSIGN',
+      payload: {
+        assignedVehicle: String(vehicle._id),
+        assignedOwner: String(req.user._id),
+        dispatch: dispatch || {}
+      },
+      actorId: String(req.user._id)
+    });
+
+    await journal.record({
+      entityType: 'Vehicle',
+      entityId: String(vehicle._id),
+      eventType: 'ROUTE_SET',
+      payload: {
+        currentRoute: vehicle.currentRoute,
+        status: vehicle.status
+      },
+      actorId: String(req.user._id)
+    });
 
     return res.json({ success: true, request: publicRequest(request) });
   } catch (error) {

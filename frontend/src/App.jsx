@@ -12,18 +12,24 @@ import { BOARD_CROPS } from './utils/constants';
  */
 const AuthScreen = lazy(() => import('./features/auth/AuthScreen').then((m) => ({ default: m.AuthScreen })));
 const LandingScreen = lazy(() => import('./features/auth/LandingScreen').then((m) => ({ default: m.LandingScreen })));
+const BlackoutConsoleScreen = lazy(() => import('./features/system/BlackoutConsoleScreen').then((m) => ({ default: m.BlackoutConsoleScreen })));
 
 /*
  * The unauthenticated pair: a hero screen that sells the product in five
  * seconds, then the form. `stage` doubles as the AuthScreen's initial mode
  * ('login' | 'signup') so the landing page's two buttons land straight on the
  * right panel instead of always opening login.
+ * 
+ * Also includes 'blackout' for the Resilience Console (pre-auth accessible).
  */
 const Gate = () => {
-  const [stage, setStage] = useState('landing'); // 'landing' | 'login' | 'signup'
+  const [stage, setStage] = useState('landing'); // 'landing' | 'login' | 'signup' | 'blackout'
 
   if (stage === 'landing') {
     return <LandingScreen onEnter={setStage} />;
+  }
+  if (stage === 'blackout') {
+    return <BlackoutConsoleScreen onExit={() => setStage('landing')} />;
   }
   return <AuthScreen initialMode={stage} onBack={() => setStage('landing')} />;
 };

@@ -100,6 +100,12 @@ const PickupRequestSchema = new mongoose.Schema({
     at: { type: Date, default: Date.now },
     note: String,
   }],
+  // Resilience system: marks test data for The Blackout drill
+  drill: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 }, { timestamps: true });
 
 PickupRequestSchema.index({ status: 1, createdAt: -1 });

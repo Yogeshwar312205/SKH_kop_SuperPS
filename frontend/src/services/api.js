@@ -526,3 +526,84 @@ export const fetchBuyerInbound = async () => {
     return [];
   }
 };
+
+
+/* ----------------------------------------------------- Resilience System */
+
+/**
+ * System health check (unauthenticated)
+ * GET /api/system/health
+ */
+export const getSystemHealth = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/system/health`, { timeout: 10000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not check system health');
+  }
+};
+
+/**
+ * Seed drill test data
+ * POST /api/system/drill/seed
+ */
+export const seedDrillData = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/system/drill/seed`, {}, { timeout: 30000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not seed drill data');
+  }
+};
+
+/**
+ * Simulate database corruption (blackout)
+ * POST /api/system/drill/blackout
+ */
+export const simulateBlackout = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/system/drill/blackout`, {}, { timeout: 30000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not simulate blackout');
+  }
+};
+
+/**
+ * Recover system from corruption
+ * POST /api/system/recover
+ */
+export const recoverSystem = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/system/recover`, {}, { timeout: 120000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not recover system');
+  }
+};
+
+/**
+ * Reset drill data
+ * POST /api/system/drill/reset
+ */
+export const resetDrill = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/system/drill/reset`, {}, { timeout: 30000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not reset drill');
+  }
+};
+
+/**
+ * Take manual snapshot
+ * POST /api/system/snapshot
+ */
+export const takeSnapshot = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/system/snapshot`, {}, { timeout: 30000 });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err, 'Could not take snapshot');
+  }
+};
