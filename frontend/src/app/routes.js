@@ -44,6 +44,7 @@ const LOGISTICS_TABS = [
   { id: 'logistics-jobs',     labelKey: 'nav.logistics.jobs',     icon: ClipboardList },
   { id: 'logistics-fleet',    labelKey: 'nav.logistics.fleet',    icon: Boxes },
   { id: 'logistics-routes',   labelKey: 'nav.logistics.routes',   icon: Route },
+  { id: 'drone-fleet',        labelKey: 'nav.logistics.drones',   icon: Package },
 ];
 
 const BUYER_TABS = [

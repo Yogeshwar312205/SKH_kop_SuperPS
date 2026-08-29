@@ -89,7 +89,8 @@
       "dispatch": "Dispatch",
       "fleet": "Fleet",
       "routes": "Routes",
-      "jobs": "Jobs"
+      "jobs": "Jobs",
+      "drones": "Drones"
     },
     "msrtc": {
       "dashboard": "MSRTC Portal"

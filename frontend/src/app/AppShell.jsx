@@ -31,6 +31,7 @@ const BuyerRatesScreen = lazy(() => import('../features/buyer/BuyerRatesScreen')
 const BuyerInboundScreen = lazy(() => import('../features/buyer/BuyerInboundScreen').then((m) => ({ default: m.BuyerInboundScreen })));
 const ProfilePanel = lazy(() => import('../features/profile/ProfilePanel').then((m) => ({ default: m.ProfilePanel })));
 const MsrtcDashboard = lazy(() => import('../features/msrtc/MsrtcDashboard').then((m) => ({ default: m.MsrtcDashboard })));
+const DroneFleetDashboard = lazy(() => import('../features/drone/DroneFleetDashboard').then((m) => ({ default: m.DroneFleetDashboard })));
 
 
 const Loading = () => {
@@ -73,6 +74,9 @@ const screenFor = (tabId) => {
       return <BuyerInboundScreen />;
     case 'buyer-profile':
       return <div className="pt-4"><ProfilePanel /></div>;
+
+    case 'drone-fleet':
+      return <DroneFleetDashboard />;
 
     /*
      * Unreachable: routes.js is the only source of tab ids and every one of
