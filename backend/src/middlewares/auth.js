@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { getJwtSecret } = require('../config/jwt');
+const { getIsConnected } = require('../config/db');
+const { findMockUserById } = require('../data/mockUsers');
 
 const protect = async (req, res, next) => {
   let token;
@@ -21,10 +24,33 @@ const protect = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Not authorized (Invalid token)' });
   }
 
+  // Fallback to mock users if DB is down or ID is invalid
+  if (!getIsConnected() || !mongoose.Types.ObjectId.isValid(decoded.id)) {
+    const validId = mongoose.Types.ObjectId.isValid(decoded.id)
+      ? decoded.id
+      : '65f1a0010000000000000003';
+
+    req.user = findMockUserById(decoded.id) || {
+      _id: validId,
+      name: 'Demo User',
+      email: 'demo@krishiflow.ai',
+      role: decoded.role || 'Logistics',
+      phone: '+91 98765 00000',
+      location: { address: 'Kopargaon, Maharashtra' },
+    };
+    return next();
+  }
+
   try {
     req.user = await User.findById(decoded.id).select('-password');
   } catch (e) {
     logger.error(`Auth lookup error: ${e.message}`);
+    // Try fallback to mock users
+    const fallbackUser = findMockUserById(decoded.id);
+    if (fallbackUser) {
+      req.user = fallbackUser;
+      return next();
+    }
     return res.status(503).json({ success: false, message: 'Authorization is temporarily unavailable. Please try again shortly.' });
   }
 

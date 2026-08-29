@@ -464,6 +464,88 @@ export const optimizeEVRoute = async (evParams) => {
 };
 
 // ==============================================================================
+// Drone network (🚁 KrishiFly)
+// ==============================================================================
+
+/**
+ * Get all drone hubs.
+ * GET /api/v2/drone/hubs
+ */
+export const getDroneHubs = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/hubs');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone hubs.');
+  }
+};
+
+/**
+ * Get drone fleet status.
+ * GET /api/v2/drone/fleet
+ */
+export const getDroneFleet = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/fleet');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone fleet.');
+  }
+};
+
+/**
+ * Estimate drone mission feasibility and cost.
+ * POST /api/v2/drone/estimate
+ */
+export const estimateDroneMission = async (estimateParams) => {
+  try {
+    const { data } = await apiClient.post('/v2/drone/estimate', estimateParams);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not estimate drone mission.');
+  }
+};
+
+/**
+ * Dispatch a drone mission.
+ * POST /api/v2/drone/dispatch
+ */
+export const dispatchDroneMission = async (dispatchParams) => {
+  try {
+    const { data } = await apiClient.post('/v2/drone/dispatch', dispatchParams);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not dispatch drone mission.');
+  }
+};
+
+/**
+ * Simulate drone flight with waypoints.
+ * POST /api/v2/drone/simulate/:missionId
+ */
+export const simulateDroneMission = async (missionId, waypoints) => {
+  try {
+    const { data } = await apiClient.post(`/v2/drone/simulate/${missionId}`, { waypoints });
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not start flight simulation.');
+  }
+};
+
+/**
+ * Get drone analytics.
+ * GET /api/v2/drone/analytics
+ */
+export const getDroneAnalytics = async () => {
+  try {
+    const { data } = await apiClient.get('/v2/drone/analytics');
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not load drone analytics.');
+  }
+};
+
+// ==============================================================================
 // Export all
 // ==============================================================================
 
@@ -516,4 +598,12 @@ export default {
   getCandidates,
   optimizeEVSiting,
   optimizeEVRoute,
+
+  // Drone (🚁 KrishiFly)
+  getDroneHubs,
+  getDroneFleet,
+  estimateDroneMission,
+  dispatchDroneMission,
+  simulateDroneMission,
+  getDroneAnalytics,
 };
