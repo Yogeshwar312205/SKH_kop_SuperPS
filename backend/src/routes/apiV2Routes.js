@@ -131,5 +131,6 @@ router.get('/scenario/active', apiLimiter, protect, scenarioController.getActive
 
 router.get('/ev/candidates', apiLimiter, protect, evController.getCandidates);
 router.post('/ev/optimize', apiLimiter, protect, authorize('Admin', 'Logistics'), evController.optimizeSiting);
+router.post('/ev/route-optimize', apiLimiter, protect, evController.optimizeEVRoute);
 
 module.exports = router;

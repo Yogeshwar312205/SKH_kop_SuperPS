@@ -450,6 +450,19 @@ export const optimizeEVSiting = async (params) => {
   }
 };
 
+/**
+ * Optimize EV Pickup Route with Charging Station insertion.
+ * POST /api/v2/ev/route-optimize
+ */
+export const optimizeEVRoute = async (evParams) => {
+  try {
+    const { data } = await apiClient.post('/v2/ev/route-optimize', evParams);
+    return data;
+  } catch (err) {
+    throw toApiError(err, 'Could not calculate EV route optimization.');
+  }
+};
+
 // ==============================================================================
 // Export all
 // ==============================================================================
@@ -502,4 +515,5 @@ export default {
   // EV
   getCandidates,
   optimizeEVSiting,
+  optimizeEVRoute,
 };

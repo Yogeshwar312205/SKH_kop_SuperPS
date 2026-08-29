@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Truck, MapPin, ChevronDown, Snowflake, Save, X } from 'lucide-react';
+import { Truck, MapPin, ChevronDown, Snowflake, Save, X, Zap, BatteryCharging, Gauge } from 'lucide-react';
 import { useT } from '../../i18n/useT';
 import { addFleetVehicle } from '../../services/api';
 import { Field } from '../../design/primitives/Field';
@@ -7,22 +7,17 @@ import { ChoiceGrid } from '../../design/primitives/ChoiceGrid';
 import { Button } from '../../design/primitives/Button';
 import { BASE_LOCATIONS } from './baseLocations';
 
-const VEHICLE_TYPES = ['Refrigerated Van', 'Heavy Freighter', 'E-Pickup', 'Mini Truck'];
+const VEHICLE_TYPES = ['E-Pickup', 'Refrigerated Van', 'Heavy Freighter', 'Mini Truck'];
 
 const EMPTY = {
   vehicleNo: '', driverName: '', driverPhone: '',
-  vehicleType: VEHICLE_TYPES[0], capacityKg: '', ratePerKm: '',
-  isRefrigerated: 'yes', baseId: BASE_LOCATIONS[0].id,
+  vehicleType: 'E-Pickup', capacityKg: '1500', ratePerKm: '42',
+  isRefrigerated: 'no', baseId: BASE_LOCATIONS[0].id,
+  batteryCapacityKwh: '40', currentSoc: '65', maxRangeKm: '180',
 };
 
 /**
  * Adds a truck to the fleet.
- *
- * The base is picked from a list of real places rather than typed, because a
- * vehicle's position is not decoration here — it is the first stop of its route
- * and every insertion cost is measured from it. A free-text base would give us
- * a truck we cannot rank, which the dispatch screen would then have to explain
- * away. Better to only ever accept a location we actually know.
  */
 export const AddVehicleForm = ({ onDone, onCancel }) => {
   const { t } = useT();
@@ -49,6 +44,9 @@ export const AddVehicleForm = ({ onDone, onCancel }) => {
         isRefrigerated: draft.isRefrigerated === 'yes',
         baseLocation: base.label,
         baseCoords: base.coordinates,
+        batteryCapacityKwh: draft.vehicleType === 'E-Pickup' ? Number(draft.batteryCapacityKwh) : null,
+        currentSoc: draft.vehicleType === 'E-Pickup' ? Number(draft.currentSoc) : null,
+        maxRangeKm: draft.vehicleType === 'E-Pickup' ? Number(draft.maxRangeKm) : null,
       });
       setDraft(EMPTY);
       await onDone();
@@ -65,7 +63,7 @@ export const AddVehicleForm = ({ onDone, onCancel }) => {
 
       <Field
         label={t('dispatch.vehicleNumber')} icon={Truck} name="vehicleNo"
-        value={draft.vehicleNo} onChange={update} placeholder="MH 15 GH 4921" required
+        value={draft.vehicleNo} onChange={update} placeholder="MH 15 EV 8821" required
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -93,14 +91,41 @@ export const AddVehicleForm = ({ onDone, onCancel }) => {
         </div>
       </div>
 
+      {/* EV Battery Spec inputs when vehicleType is E-Pickup */}
+      {draft.vehicleType === 'E-Pickup' && (
+        <div className="p-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl space-y-3">
+          <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs">
+            <Zap className="h-4 w-4 text-emerald-700 fill-emerald-700" />
+            <span>EV Battery & Range Specifications</span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Field
+              label="Battery Pack (kWh)" icon={BatteryCharging} type="number" name="batteryCapacityKwh"
+              value={draft.batteryCapacityKwh} onChange={update} placeholder="40" min="10" required
+            />
+
+            <Field
+              label="Initial Battery % (SoC)" icon={Zap} type="number" name="currentSoc"
+              value={draft.currentSoc} onChange={update} placeholder="65" min="5" max="100" required
+            />
+
+            <Field
+              label="Max Single-Charge (km)" icon={Gauge} type="number" name="maxRangeKm"
+              value={draft.maxRangeKm} onChange={update} placeholder="180" min="20" required
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label={t('dispatch.capacity')} type="number" inputMode="numeric" name="capacityKg"
-          value={draft.capacityKg} onChange={update} placeholder="3500" min="1" required
+          value={draft.capacityKg} onChange={update} placeholder="1500" min="1" required
         />
         <Field
           label={t('dispatch.ratePerKm')} type="number" inputMode="numeric" name="ratePerKm"
-          value={draft.ratePerKm} onChange={update} placeholder="52" min="1" required
+          value={draft.ratePerKm} onChange={update} placeholder="42" min="1" required
         />
       </div>
 
